@@ -1,0 +1,1 @@
+web: java -jar build/libs/datchat-0.1-SNAPSHOT-all.jar

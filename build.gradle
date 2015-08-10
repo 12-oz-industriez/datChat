@@ -30,3 +30,5 @@ jar {
         )
     }
 }
+
+task stage(dependsOn: ['clean', 'build'])
