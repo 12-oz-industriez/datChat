@@ -1,3 +1,8 @@
+plugins {
+    id 'java'
+    id 'com.github.johnrengelman.shadow' version '1.2.2'
+}
+
 group '12-oz'
 version '0.1-SNAPSHOT'
 
@@ -6,10 +11,22 @@ task wrapper(type: Wrapper) {
     distributionUrl = "https://services.gradle.org/distributions/gradle-$gradleVersion-all.zip"
 }
 
-apply plugin: 'java'
 sourceCompatibility = 1.8
 
 repositories {
     jcenter()
 }
 
+dependencies {
+    compile 'io.vertx:vertx-core:3.0.0'
+    compile 'io.vertx:vertx-web:3.0.0'
+}
+
+jar {
+    manifest {
+        attributes(
+                'Main-Class': 'io.vertx.core.Starter',
+                'Main-Verticle': 'datchat.Bootstrap'
+        )
+    }
+}
