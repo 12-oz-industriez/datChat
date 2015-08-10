@@ -13,9 +13,11 @@ public class Bootstrap extends AbstractVerticle {
 
         createRoutes(router);
 
+        String port = System.getenv("PORT");
+
         vertx.createHttpServer()
                 .requestHandler(router::accept)
-                .listen(8080, result -> {
+                .listen(Integer.valueOf(port), result -> {
                     if (result.succeeded()) {
                         startFuture.complete();
                     } else {
