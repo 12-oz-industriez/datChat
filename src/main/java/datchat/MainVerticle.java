@@ -86,7 +86,7 @@ public class MainVerticle extends AbstractVerticle {
         router.routeWithRegex(HttpMethod.POST, ".*").handler(BodyHandler.create());
 
         router.route(HttpMethod.POST, "/api/auth").handler(authHandler());
-        router.route().handler(new SessionHandler(sessionManager, userDao));
+//        router.route().handler(new SessionHandler(sessionManager, userDao));
 
         router.get("/").handler(StaticHandler.create("assets"));
 

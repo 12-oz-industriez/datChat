@@ -1,31 +1,26 @@
-package datchat.config;
+package datchat.config.heroku;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.mongodb.async.client.MongoClient;
 import com.mongodb.async.client.MongoClients;
-import com.mongodb.async.client.MongoDatabase;
-import datchat.MainVerticle;
-import datchat.dao.MessageDao;
-import datchat.dao.UserDao;
-import datchat.json.ObjectIdSerializer;
-import datchat.session.SessionManager;
 import io.vertx.core.Vertx;
-import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
 import io.vertx.redis.RedisClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 
+import javax.inject.Inject;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.concurrent.CompletableFuture;
 
 @Configuration
-@ComponentScan(basePackages = "datchat")
-public class Context {
+@Profile("heroku")
+public class HerokuConfig {
+
+    @Inject
+    private Vertx vertx;
 
     @Value("#{systemEnvironment['MONGOLAB_URI']}")
     private String mongoConnectionString;
@@ -34,28 +29,8 @@ public class Context {
     private String redisConnectionString;
 
     @Bean
-    public Vertx vertx() {
-        return Vertx.vertx();
-    }
-
-    @Bean
-    public MainVerticle mainVerticle(MessageDao messageDao, UserDao userDao, SessionManager sessionManager) {
-        MainVerticle mainVerticle = new MainVerticle(mongoDatabase(), messageDao, userDao, sessionManager);
-
-        vertx().deployVerticle(mainVerticle);
-
-        return mainVerticle;
-    }
-
-    @Bean
-    public ObjectMapper objectMapper() {
-        ObjectMapper objectMapper = Json.mapper;
-
-        SimpleModule module = new SimpleModule();
-        module.addSerializer(new ObjectIdSerializer());
-        objectMapper.registerModule(module);
-
-        return objectMapper;
+    public MongoClient mongoClient() {
+        return MongoClients.create(mongoConnectionString);
     }
 
     @Bean
@@ -69,7 +44,7 @@ public class Context {
 
             CompletableFuture<Void> future = new CompletableFuture<>();
 
-            RedisClient redisClient = RedisClient.create(vertx(), redisConfig);
+            RedisClient redisClient = RedisClient.create(vertx, redisConfig);
             redisClient.auth(redisURI.getUserInfo().split(":")[1], event -> {
                 if (event.succeeded()) {
                     future.complete(null);
@@ -84,16 +59,5 @@ public class Context {
         } catch (URISyntaxException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    @Bean
-    public MongoClient mongoClient() {
-        return MongoClients.create(mongoConnectionString);
-    }
-
-    @Bean
-    public MongoDatabase mongoDatabase() {
-        String databaseName = "datchat";
-        return mongoClient().getDatabase(databaseName);
     }
 }
