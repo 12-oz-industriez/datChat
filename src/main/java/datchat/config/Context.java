@@ -40,7 +40,7 @@ public class Context {
 
     @Bean
     public MainVerticle mainVerticle(MessageDao messageDao, UserDao userDao, SessionManager sessionManager) {
-        MainVerticle mainVerticle = new MainVerticle(messageDao, userDao, sessionManager);
+        MainVerticle mainVerticle = new MainVerticle(mongoDatabase, messageDao, userDao, sessionManager);
 
         vertx().deployVerticle(mainVerticle);
 
