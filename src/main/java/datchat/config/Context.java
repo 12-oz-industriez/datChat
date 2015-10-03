@@ -14,13 +14,24 @@ import io.vertx.core.Vertx;
 import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
 import io.vertx.redis.RedisClient;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.concurrent.CompletableFuture;
+
 @Configuration
 @ComponentScan(basePackages = "datchat")
 public class Context {
+
+    @Value("#{systemEnvironment['MONGOLAB_URI']}")
+    private String mongoConnectionString;
+
+    @Value("#{systemEnvironment['REDIS_URL']}")
+    private String redisConnectionString;
 
     @Bean
     public Vertx vertx() {
@@ -49,15 +60,35 @@ public class Context {
 
     @Bean
     public RedisClient redisClient() {
-        JsonObject redisConfig = new JsonObject()
-                .put("host", "localhost");
+        try {
+            URI redisURI = new URI(redisConnectionString);
 
-        return RedisClient.create(vertx(), redisConfig);
+            JsonObject redisConfig = new JsonObject()
+                    .put("host", redisURI.getHost())
+                    .put("port", redisURI.getPort());
+
+            CompletableFuture<Void> future = new CompletableFuture<>();
+
+            RedisClient redisClient = RedisClient.create(vertx(), redisConfig);
+            redisClient.auth(redisURI.getUserInfo().split(":")[1], event -> {
+                if (event.succeeded()) {
+                    future.complete(null);
+                } else if (event.failed()) {
+                    future.completeExceptionally(event.cause());
+                }
+            });
+
+            future.join();
+
+            return redisClient;
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Bean
     public MongoClient mongoClient() {
-        return MongoClients.create();
+        return MongoClients.create(mongoConnectionString);
     }
 
     @Bean
