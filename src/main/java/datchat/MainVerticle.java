@@ -89,6 +89,8 @@ public class MainVerticle extends AbstractVerticle {
 //        router.route().handler(new SessionHandler(sessionManager, userDao));
 
         router.get("/").handler(StaticHandler.create("assets"));
+        router.get("/js/*").handler(StaticHandler.create("assets/js"));
+        router.get("/css/*").handler(StaticHandler.create("assets/css"));
 
         router.post("/api/chat/").handler(createMessageHandler());
         router.get("/api/chat").handler(getMessagesHandler());
