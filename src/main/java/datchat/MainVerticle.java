@@ -1,5 +1,6 @@
 package datchat;
 
+import com.mongodb.async.client.MongoDatabase;
 import datchat.dao.MessageDao;
 import datchat.dao.UserDao;
 import datchat.exception.AuthenticationFailedException;
@@ -18,6 +19,7 @@ import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.StaticHandler;
+import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -29,13 +31,15 @@ import java.util.stream.Collectors;
 public class MainVerticle extends AbstractVerticle {
     private static final Logger LOGGER = LoggerFactory.getLogger(MainVerticle.class);
 
+    private final MongoDatabase mongoDatabase;
     private final MessageDao messageDao;
     private final UserDao userDao;
     private final SessionManager sessionManager;
 
     @Inject
-    public MainVerticle(MessageDao messageDao,
+    public MainVerticle(MongoDatabase mongoDatabase, MessageDao messageDao,
                         UserDao userDao, SessionManager sessionManager) {
+        this.mongoDatabase = mongoDatabase;
         this.messageDao = messageDao;
         this.userDao = userDao;
         this.sessionManager = sessionManager;
@@ -69,10 +73,20 @@ public class MainVerticle extends AbstractVerticle {
     private void createRoutes(Router router) {
         router.exceptionHandler(exc -> LOGGER.error("Exception", exc));
 
+        router.get("/healthcheck").handler(context ->
+                mongoDatabase.getCollection("healthcheck")
+                        .insertOne(new Document("health", 1), (result, t) -> {
+                            if (t != null) {
+                                context.response().setStatusCode(500);
+                            } else {
+                                context.response().setStatusCode(200);
+                            }
+                        }));
+
         router.routeWithRegex(HttpMethod.POST, ".*").handler(BodyHandler.create());
 
         router.route(HttpMethod.POST, "/api/auth").handler(authHandler());
-        router.route().handler(new SessionHandler(sessionManager, userDao));
+//        router.route().handler(new SessionHandler(sessionManager, userDao));
 
         router.get("/").handler(StaticHandler.create("assets"));
 

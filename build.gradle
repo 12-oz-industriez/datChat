@@ -34,8 +34,7 @@ dependencies {
 jar {
     manifest {
         attributes(
-                'Main-Class': 'io.vertx.core.Starter',
-                'Main-Verticle': 'datchat.Bootstrap'
+                'Main-Class': 'datchat.Main',
         )
     }
 }
