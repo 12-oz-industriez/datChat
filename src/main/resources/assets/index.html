@@ -8,12 +8,18 @@
 
 </head>
 <body>
-    <div>
-        <h1>Dat chat is awesome!</h1>
+    <h1>Dat chat is awesome!</h1>
+    <div id="subscribe">
+        <span>Here will be messages</span>
     </div>
+    <form class="outputMessage">
+        <input type="text" name="message">
+        <input type="submit" value="send" id="sendMessage">
+    </form>
     <script src="initialization/pre-init.js"></script>
     <script src="initialization/init.js"></script>
     <script src="config/constants.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.13.3/react-with-addons.min.js"></script>
     <script src="communication/communicationLayer.js"></script>
 </body>
 </html>
