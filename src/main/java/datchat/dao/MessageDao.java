@@ -1,14 +1,15 @@
 package datchat.dao;
 
 import com.mongodb.async.client.MongoDatabase;
-import datchat.model.Message;
+import datchat.model.ChatMessage;
 import org.bson.Document;
+import org.bson.types.ObjectId;
 import org.springframework.stereotype.Repository;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
 
 import static com.mongodb.client.model.Sorts.descending;
 
@@ -23,53 +24,48 @@ public class MessageDao {
         this.database = database;
     }
 
-    public CompletableFuture<Void> save(Message message) {
-        CompletableFuture<Void> future = new CompletableFuture<>();
-
+    public void save(ChatMessage chatMessage, Consumer<ChatMessage> resultCallback, Consumer<Throwable> exceptionCallback) {
+        ChatMessage messageWithId = chatMessage.withChatMessageId(new ObjectId());
         database.getCollection(COLLECTION_NAME)
-                .insertOne(convertToDocument(message),
+                .insertOne(convertToDocument(chatMessage),
                         (result, t) -> {
                             if (t != null) {
-                                future.completeExceptionally(t);
+                                exceptionCallback.accept(t);
                             } else {
-                                future.complete(result);
+                                resultCallback.accept(messageWithId);
                             }
                         });
-
-        return future;
     }
 
-    public CompletableFuture<List<Message>> getMessages() {
-        CompletableFuture<List<Message>> future = new CompletableFuture<>();
-
-        final List<Message> messages = new ArrayList<>();
+    public void getMessages(Consumer<List<ChatMessage>> resultCallback,
+                            Consumer<Throwable> exceptionCallback) {
+        final List<ChatMessage> chatMessages = new ArrayList<>();
         database.getCollection(COLLECTION_NAME)
                 .find()
                 .sort(descending("_id"))
-                .forEach(d -> messages.add(convertToMessage(d)),
+                .forEach(d -> chatMessages.add(convertToMessage(d)),
                         (r, t) -> {
                             if (t != null) {
-                                future.completeExceptionally(t);
+                                exceptionCallback.accept(t);
                             } else {
-                                future.complete(messages);
+                                resultCallback.accept(chatMessages);
                             }
                         }
                 );
-
-        return future;
     }
 
-    private Document convertToDocument(Message message) {
+    private Document convertToDocument(ChatMessage chatMessage) {
         return new Document()
-                .append("body", message.getBody())
-                .append("author", message.getAuthor());
+                .append("body", chatMessage.getBody())
+                .append("author", chatMessage.getAuthor());
     }
 
-    private Message convertToMessage(Document document) {
-        return new Message(
+    private ChatMessage convertToMessage(Document document) {
+        return new ChatMessage(
+                null,
                 document.getObjectId("_id"),
                 document.getString("body"),
-                document.getObjectId("author")
+                document.getString("author")
         );
     }
 }
