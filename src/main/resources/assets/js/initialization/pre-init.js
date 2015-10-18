@@ -1,2 +1,1 @@
-var $ = $ || {};
-$.datChat = $.datChat || {};
+datChat = {};

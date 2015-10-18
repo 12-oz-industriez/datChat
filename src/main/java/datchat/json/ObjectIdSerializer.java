@@ -14,6 +14,6 @@ public class ObjectIdSerializer extends StdSerializer<ObjectId> {
 
     @Override
     public void serialize(ObjectId value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
-        gen.writeString(value.toString());
+        gen.writeString(value.toHexString());
     }
 }

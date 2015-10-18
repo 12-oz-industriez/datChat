@@ -22,13 +22,17 @@ dependencies {
             'io.vertx:vertx-web:3.0.0',
             'io.vertx:vertx-redis-client:3.0.0',
             'org.mongodb:mongodb-driver-async:3.0.2',
-            'com.fasterxml.jackson.core:jackson-core:2.6.1',
-            'com.fasterxml.jackson.core:jackson-databind:2.6.1',
+            'com.fasterxml.jackson.core:jackson-core:2.6.3',
+            'com.fasterxml.jackson.core:jackson-databind:2.6.3',
             'org.slf4j:slf4j-api:1.7.7',
             'org.slf4j:jcl-over-slf4j:1.7.7',
             'ch.qos.logback:logback-classic:1.1.2',
             'org.springframework:spring-context:4.2.0.RELEASE',
-            'javax.inject:javax.inject:1'
+            'javax.inject:javax.inject:1',
+            'net.karneim:pojobuilder:3.4.0',
+            'org.reflections:reflections:0.9.10'
+
+    testCompile 'junit:junit:4.12'
 }
 
 jar {

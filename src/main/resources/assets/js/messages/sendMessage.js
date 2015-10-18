@@ -5,4 +5,4 @@
 /*
 var button = document.getElementById($.datChat.CONSTANTS.SEND_MESSAGE_BUTTON_ID );
 button.addEventListener()
-button.addEventListener($.datChat.sendMessage($.datChat.sendMessage()))*/
+button.addEventListener($.datChat.sendChatMessage($.datChat.sendChatMessage()))*/

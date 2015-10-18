@@ -1,21 +1,25 @@
 package datchat.dao;
 
 import com.mongodb.async.client.MongoDatabase;
-import datchat.model.ChatMessage;
+import datchat.model.chat.message.ChatMessage;
 import org.bson.Document;
 import org.bson.types.ObjectId;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
 import static com.mongodb.client.model.Sorts.descending;
 
 @Repository
 public class MessageDao {
-    private static final String COLLECTION_NAME = "collectionName";
+    private static final Logger LOGGER = LoggerFactory.getLogger(MessageDao.class);
+    private static final String COLLECTION_NAME = "chatMessages";
 
     private final MongoDatabase database;
 
@@ -25,16 +29,27 @@ public class MessageDao {
     }
 
     public void save(ChatMessage chatMessage, Consumer<ChatMessage> resultCallback, Consumer<Throwable> exceptionCallback) {
-        ChatMessage messageWithId = chatMessage.withChatMessageId(new ObjectId());
+        ChatMessage chatMessageWithId = chatMessage.toBuilder()
+                .withId(new ObjectId())
+                .build();
+
         database.getCollection(COLLECTION_NAME)
                 .insertOne(convertToDocument(chatMessage),
                         (result, t) -> {
                             if (t != null) {
                                 exceptionCallback.accept(t);
                             } else {
-                                resultCallback.accept(messageWithId);
+                                resultCallback.accept(chatMessageWithId);
                             }
                         });
+    }
+
+    public CompletableFuture<ChatMessage> save(ChatMessage chatMessage) {
+        CompletableFuture<ChatMessage> future = new CompletableFuture<>();
+
+        save(chatMessage, future::complete, future::completeExceptionally);
+
+        return future;
     }
 
     public void getMessages(Consumer<List<ChatMessage>> resultCallback,
@@ -61,11 +76,10 @@ public class MessageDao {
     }
 
     private ChatMessage convertToMessage(Document document) {
-        return new ChatMessage(
-                null,
-                document.getObjectId("_id"),
-                document.getString("body"),
-                document.getString("author")
-        );
+        return ChatMessage.builder()
+                .withId(document.getObjectId("_id"))
+                .withBody(document.getString("body"))
+                .withAuthor(document.getString("author"))
+                .build();
     }
 }

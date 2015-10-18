@@ -1,4 +1,4 @@
-package datchat.model.common;
+package datchat.model.chat.save;
 
 public enum SaveStatus {
     OK,
