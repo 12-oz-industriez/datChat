@@ -1,5 +1,6 @@
 plugins {
     id 'java'
+    id 'application'
     id 'com.github.johnrengelman.shadow' version '1.2.2'
 }
 
@@ -16,6 +17,9 @@ sourceCompatibility = 1.8
 repositories {
     jcenter()
 }
+
+mainClassName = 'datchat.Main'
+applicationDefaultJvmArgs = ["-Dspring.profiles.active=local"]
 
 dependencies {
     compile 'io.vertx:vertx-core:3.1.0',
@@ -38,9 +42,11 @@ dependencies {
 jar {
     manifest {
         attributes(
-                'Main-Class': 'datchat.Main',
+                'Main-Class': mainClassName,
         )
     }
 }
 
 task stage(dependsOn: ['shadowJar'])
+
+task build(dependsOn: ['stage'])
