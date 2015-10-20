@@ -7,7 +7,7 @@ group '12-oz'
 version '0.1-SNAPSHOT'
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '2.5'
+    gradleVersion = '2.8'
     distributionUrl = "https://services.gradle.org/distributions/gradle-$gradleVersion-all.zip"
 }
 
