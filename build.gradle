@@ -18,9 +18,9 @@ repositories {
 }
 
 dependencies {
-    compile 'io.vertx:vertx-core:3.0.0',
-            'io.vertx:vertx-web:3.0.0',
-            'io.vertx:vertx-redis-client:3.0.0',
+    compile 'io.vertx:vertx-core:3.1.0',
+            'io.vertx:vertx-web:3.1.0',
+            'io.vertx:vertx-redis-client:3.1.0',
             'org.mongodb:mongodb-driver-async:3.0.2',
             'com.fasterxml.jackson.core:jackson-core:2.6.3',
             'com.fasterxml.jackson.core:jackson-databind:2.6.3',
