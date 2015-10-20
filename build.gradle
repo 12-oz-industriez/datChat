@@ -1,5 +1,6 @@
 plugins {
     id 'java'
+    id 'application'
     id 'com.github.johnrengelman.shadow' version '1.2.2'
 }
 
@@ -7,7 +8,7 @@ group '12-oz'
 version '0.1-SNAPSHOT'
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '2.5'
+    gradleVersion = '2.8'
     distributionUrl = "https://services.gradle.org/distributions/gradle-$gradleVersion-all.zip"
 }
 
@@ -17,10 +18,13 @@ repositories {
     jcenter()
 }
 
+mainClassName = 'datchat.Main'
+applicationDefaultJvmArgs = ["-Dspring.profiles.active=local"]
+
 dependencies {
-    compile 'io.vertx:vertx-core:3.0.0',
-            'io.vertx:vertx-web:3.0.0',
-            'io.vertx:vertx-redis-client:3.0.0',
+    compile 'io.vertx:vertx-core:3.1.0',
+            'io.vertx:vertx-web:3.1.0',
+            'io.vertx:vertx-redis-client:3.1.0',
             'org.mongodb:mongodb-driver-async:3.0.2',
             'com.fasterxml.jackson.core:jackson-core:2.6.3',
             'com.fasterxml.jackson.core:jackson-databind:2.6.3',
@@ -38,9 +42,11 @@ dependencies {
 jar {
     manifest {
         attributes(
-                'Main-Class': 'datchat.Main',
+                'Main-Class': mainClassName,
         )
     }
 }
 
 task stage(dependsOn: ['shadowJar'])
+
+task build(dependsOn: ['stage'])
