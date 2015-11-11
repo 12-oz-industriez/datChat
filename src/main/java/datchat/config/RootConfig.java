@@ -1,5 +1,6 @@
 package datchat.config;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.mongodb.async.client.MongoClient;
@@ -30,6 +31,8 @@ public class RootConfig {
         SimpleModule module = new SimpleModule();
         module.addSerializer(new ObjectIdSerializer());
         objectMapper.registerModule(module);
+
+        objectMapper.configure(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL, false);
 
         return objectMapper;
     }

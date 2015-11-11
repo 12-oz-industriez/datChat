@@ -1,6 +1,5 @@
 package datchat;
 
-import datchat.dao.MessageDao;
 import datchat.routes.WebSocketHandler;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
@@ -18,14 +17,15 @@ import javax.inject.Inject;
 public class MainVerticle extends AbstractVerticle {
     private static final Logger LOGGER = LoggerFactory.getLogger(MainVerticle.class);
 
-    private final MessageDao messageDao;
     private final WebSocketHandler webSocketHandler;
 
+    private final Integer port;
+
     @Inject
-    public MainVerticle(MessageDao messageDao,
-                        WebSocketHandler webSocketHandler) {
-        this.messageDao = messageDao;
+    public MainVerticle(WebSocketHandler webSocketHandler,
+                        Integer port) {
         this.webSocketHandler = webSocketHandler;
+        this.port = port;
     }
 
     @Override
@@ -34,18 +34,10 @@ public class MainVerticle extends AbstractVerticle {
 
         createRoutes(router);
 
-        Integer port;
-        String herokuPortEnvVariable = System.getenv("PORT");
-        if (herokuPortEnvVariable != null) {
-            port = Integer.parseInt(herokuPortEnvVariable);
-        } else {
-            port = 8080;
-        }
-
         vertx.createHttpServer()
                 .requestHandler(router::accept)
                 .websocketHandler(webSocketHandler)
-                .listen(port, result -> {
+                .listen(this.port, result -> {
                     if (result.succeeded()) {
                         startFuture.complete();
                     } else {

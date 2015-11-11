@@ -6,6 +6,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonTypeIdResolver;
 import datchat.json.PayloadTypeResolver;
 
+import java.util.UUID;
+
 public class MessageWrapper<T extends BaseMessage> {
     private final String id;
     private final MessageType type;
@@ -13,6 +15,10 @@ public class MessageWrapper<T extends BaseMessage> {
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXTERNAL_PROPERTY, property = "type")
     @JsonTypeIdResolver(PayloadTypeResolver.class)
     private final T payload;
+
+    public MessageWrapper(MessageType type, T payload) {
+        this(UUID.randomUUID().toString(), type, payload);
+    }
 
     @JsonCreator
     public MessageWrapper(@JsonProperty("id") String id,

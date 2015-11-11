@@ -28,6 +28,9 @@ public class HerokuConfig {
     @Value("#{systemEnvironment['REDIS_URL']}")
     private String redisConnectionString;
 
+    @Value("#{systemEnvironment['PORT']}")
+    private Integer port;
+
     @Bean
     public MongoClient mongoClient() {
         return MongoClients.create(mongoConnectionString);
@@ -59,5 +62,10 @@ public class HerokuConfig {
         } catch (URISyntaxException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Bean(name = "port")
+    public Integer herokuPort() {
+        return this.port;
     }
 }

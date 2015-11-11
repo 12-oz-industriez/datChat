@@ -8,7 +8,7 @@ import datchat.model.chat.common.MessageType;
 public class SaveResult implements BaseMessage {
     private final SaveStatus status;
 
-    public SaveResult(String id, SaveStatus status) {
+    public SaveResult(SaveStatus status) {
         this.status = status;
     }
 

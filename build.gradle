@@ -34,7 +34,8 @@ dependencies {
             'org.springframework:spring-context:4.2.0.RELEASE',
             'javax.inject:javax.inject:1',
             'net.karneim:pojobuilder:3.4.0',
-            'org.reflections:reflections:0.9.10'
+            'org.reflections:reflections:0.9.10',
+            'org.msgpack:msgpack-core:0.7.0-p9'
 
     testCompile 'junit:junit:4.12'
 }
