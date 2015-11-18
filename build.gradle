@@ -1,5 +1,4 @@
 allprojects {
-    apply plugin: 'java'
     group '12-oz'
     version '0.1-SNAPSHOT'
 

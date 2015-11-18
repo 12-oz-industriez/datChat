@@ -37,7 +37,7 @@ public class VertxConfig {
     }
 
     @Bean
-    public MainVerticle mainVerticle(MessageDao messageDao) {
+    public MainVerticle mainVerticle() {
         MainVerticle mainVerticle = new MainVerticle(webSocketHandler(), port);
 
         vertx().deployVerticle(mainVerticle);

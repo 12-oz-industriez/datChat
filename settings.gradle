@@ -1,3 +1,6 @@
 rootProject.name = 'datchat'
 
-include 'domain', 'server', 'android'
+include ':domain'
+include ':server'
+
+include ':android:android-app'

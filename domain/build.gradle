@@ -1,3 +1,7 @@
+plugins {
+    id 'java'
+}
+
 sourceCompatibility = 1.7
 
 dependencies {
