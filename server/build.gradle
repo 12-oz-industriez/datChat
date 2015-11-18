@@ -11,21 +11,19 @@ applicationDefaultJvmArgs = ["-Dspring.profiles.active=local"]
 dependencies {
     compile project(':domain')
 
-    compile 'io.vertx:vertx-core:3.1.0',
-            'io.vertx:vertx-web:3.1.0',
-            'io.vertx:vertx-redis-client:3.1.0',
-            'org.mongodb:mongodb-driver-async:3.0.2',
+    compile vertx_core,
+            vertx_web,
+            mongodb_driver_async,
             jackson_core,
             jackson_databind,
-            'org.slf4j:slf4j-api:1.7.7',
-            'org.slf4j:jcl-over-slf4j:1.7.7',
-            'ch.qos.logback:logback-classic:1.1.2',
-            'org.springframework:spring-context:4.2.0.RELEASE',
-            'javax.inject:javax.inject:1',
-            reflections,
-            'org.msgpack:msgpack-core:0.7.0-p9'
+            spring_context,
+            javax_inject,
+            slf4j_api,
+            slf4j_jcl_adapter,
+            slf4j_logback,
+            reflections
 
-    testCompile 'junit:junit:4.12'
+    testCompile junit
 }
 
 jar {
