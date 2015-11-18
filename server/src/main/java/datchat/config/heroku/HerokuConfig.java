@@ -5,6 +5,7 @@ import com.mongodb.async.client.MongoClients;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.redis.RedisClient;
+import io.vertx.redis.RedisOptions;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -41,24 +42,13 @@ public class HerokuConfig {
         try {
             URI redisURI = new URI(redisConnectionString);
 
-            JsonObject redisConfig = new JsonObject()
-                    .put("host", redisURI.getHost())
-                    .put("port", redisURI.getPort());
+            String password = redisURI.getUserInfo().split(":")[1];
+            RedisOptions redisOptions = new RedisOptions()
+                    .setHost(redisURI.getHost())
+                    .setPort(redisURI.getPort())
+                    .setAuth(password);
 
-            CompletableFuture<Void> future = new CompletableFuture<>();
-
-            RedisClient redisClient = RedisClient.create(vertx, redisConfig);
-            redisClient.auth(redisURI.getUserInfo().split(":")[1], event -> {
-                if (event.succeeded()) {
-                    future.complete(null);
-                } else if (event.failed()) {
-                    future.completeExceptionally(event.cause());
-                }
-            });
-
-            future.join();
-
-            return redisClient;
+            return RedisClient.create(vertx, redisOptions);
         } catch (URISyntaxException e) {
             throw new RuntimeException(e);
         }

@@ -1,0 +1,9 @@
+sourceCompatibility = 1.7
+
+dependencies {
+    compile reflections,
+            jackson_annotations,
+            jackson_databind,
+            mongodb_bson,
+            pojo_builder
+}

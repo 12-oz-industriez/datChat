@@ -6,10 +6,11 @@ import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.jsontype.impl.TypeIdResolverBase;
 import datchat.model.chat.common.BaseMessage;
 import datchat.model.chat.common.MessageType;
-import datchat.reflection.PayloadSubTypeAnnotationCollector;
+import datchat.model.chat.annotation.PayloadSubTypeAnnotationCollector;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 public class PayloadTypeResolver extends TypeIdResolverBase {
     private Map<MessageType, Class<? extends BaseMessage>> typeFromIdMapping;
@@ -18,10 +19,11 @@ public class PayloadTypeResolver extends TypeIdResolverBase {
     @Override
     public void init(JavaType bt) {
         typeFromIdMapping = PayloadSubTypeAnnotationCollector.collect();
-        idFromTypeMapping = typeFromIdMapping.entrySet().stream()
-                .collect(HashMap::new,
-                        (map, entry) -> map.put(entry.getValue(), entry.getKey()),
-                        HashMap::putAll);
+
+        idFromTypeMapping = new HashMap<>();
+        for (Entry<MessageType, Class<? extends BaseMessage>> entry : typeFromIdMapping.entrySet()) {
+            idFromTypeMapping.put(entry.getValue(), entry.getKey());
+        }
     }
 
     @Override
