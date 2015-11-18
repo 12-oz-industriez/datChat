@@ -3,13 +3,12 @@ package datchat.model.chat.message;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import datchat.model.chat.annotation.PayloadSubType;
-import datchat.model.chat.common.BaseMessage;
 import datchat.model.chat.common.MessageType;
 import net.karneim.pojobuilder.GeneratePojoBuilder;
 import org.bson.types.ObjectId;
 
 @PayloadSubType(MessageType.NEW_MESSAGE)
-public class ChatMessage implements BaseMessage {
+public class ChatMessage {
     private final ObjectId id;
     private final String body;
     private final String author;

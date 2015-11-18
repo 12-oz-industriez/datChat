@@ -1,1 +1,1 @@
-web: java -jar -Dspring.profiles.active=heroku server/build/libs/datchat-*-all.jar
+web: java -jar -Dspring.profiles.active=heroku server/build/libs/server-*-all.jar

@@ -13,15 +13,15 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 public class PayloadTypeResolver extends TypeIdResolverBase {
-    private Map<MessageType, Class<? extends BaseMessage>> typeFromIdMapping;
-    private Map<Class<? extends BaseMessage>, MessageType> idFromTypeMapping;
+    private Map<MessageType, Class<?>> typeFromIdMapping;
+    private Map<Class<?>, MessageType> idFromTypeMapping;
 
     @Override
     public void init(JavaType bt) {
         typeFromIdMapping = PayloadSubTypeAnnotationCollector.collect();
 
         idFromTypeMapping = new HashMap<>();
-        for (Entry<MessageType, Class<? extends BaseMessage>> entry : typeFromIdMapping.entrySet()) {
+        for (Entry<MessageType, Class<?>> entry : typeFromIdMapping.entrySet()) {
             idFromTypeMapping.put(entry.getValue(), entry.getKey());
         }
     }
@@ -44,7 +44,7 @@ public class PayloadTypeResolver extends TypeIdResolverBase {
     @Override
     public JavaType typeFromId(DatabindContext context, String id) {
         MessageType messageType = MessageType.valueOf(id);
-        Class<? extends BaseMessage> payloadClass = typeFromIdMapping.get(messageType);
+        Class<?> payloadClass = typeFromIdMapping.get(messageType);
 
         return context.constructType(payloadClass);
     }

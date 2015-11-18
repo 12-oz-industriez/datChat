@@ -8,7 +8,7 @@ import datchat.json.PayloadTypeResolver;
 
 import java.util.UUID;
 
-public class MessageWrapper<T extends BaseMessage> {
+public class MessageWrapper<T> {
     private final String id;
     private final MessageType type;
 
