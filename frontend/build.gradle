@@ -1,0 +1,23 @@
+plugins {
+    id "com.moowork.grunt" version "0.11"
+}
+
+group '12-oz'
+version '0.1-SNAPSHOT'
+
+node {
+    version = '0.10.22'
+
+    download = true
+}
+
+task grunt_build {
+    dependsOn installGrunt
+    dependsOn npmInstall
+
+    dependsOn grunt_sampleTask
+}
+
+task build {
+    dependsOn grunt_build
+}

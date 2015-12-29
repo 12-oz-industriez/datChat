@@ -31,5 +31,6 @@ jar {
     }
 }
 
-task stage(dependsOn: ['shadowJar'])
-
+task stage {
+    dependsOn shadowJar
+}
