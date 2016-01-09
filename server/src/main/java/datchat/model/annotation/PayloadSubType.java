@@ -1,6 +1,6 @@
-package datchat.model.chat.annotation;
+package datchat.model.annotation;
 
-import datchat.model.chat.common.MessageType;
+import datchat.model.common.MessageType;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

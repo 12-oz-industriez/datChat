@@ -2,7 +2,7 @@ package datchat.routes;
 
 import datchat.handlers.common.MessageDispatcher;
 import datchat.handlers.common.Response;
-import datchat.model.chat.common.MessageWrapper;
+import datchat.model.common.MessageWrapper;
 import io.vertx.core.http.ServerWebSocket;
 import io.vertx.core.json.Json;
 import org.springframework.stereotype.Component;

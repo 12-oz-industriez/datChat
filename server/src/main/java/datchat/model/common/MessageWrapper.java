@@ -1,4 +1,4 @@
-package datchat.model.chat.common;
+package datchat.model.common;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonTypeIdResolver;

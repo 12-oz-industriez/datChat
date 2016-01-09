@@ -1,7 +1,7 @@
-package datchat.model.chat.message;
+package datchat.model.message;
 
-import datchat.model.chat.annotation.PayloadSubType;
-import datchat.model.chat.common.MessageType;
+import datchat.model.annotation.PayloadSubType;
+import datchat.model.common.MessageType;
 
 @PayloadSubType(MessageType.ERROR)
 public class ErrorMessage {

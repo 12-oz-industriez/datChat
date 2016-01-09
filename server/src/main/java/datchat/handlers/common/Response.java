@@ -1,6 +1,6 @@
 package datchat.handlers.common;
 
-import datchat.model.chat.common.MessageWrapper;
+import datchat.model.common.MessageWrapper;
 
 public class Response {
     private final MessageWrapper clientResponse;

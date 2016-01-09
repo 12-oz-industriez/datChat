@@ -1,8 +1,8 @@
-package datchat.model.chat.message;
+package datchat.model.message;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import datchat.model.chat.annotation.PayloadSubType;
-import datchat.model.chat.common.MessageType;
+import datchat.model.annotation.PayloadSubType;
+import datchat.model.common.MessageType;
 import org.bson.types.ObjectId;
 
 @PayloadSubType(MessageType.GET_LATEST)

@@ -3,11 +3,11 @@ package datchat.handlers;
 import datchat.dao.MessageDao;
 import datchat.handlers.common.MessageHandler;
 import datchat.handlers.common.Response;
-import datchat.model.chat.common.MessageType;
-import datchat.model.chat.common.MessageWrapper;
-import datchat.model.chat.message.ChatMessage;
-import datchat.model.chat.message.ErrorMessage;
-import datchat.model.chat.message.GetLatestRequest;
+import datchat.model.common.MessageType;
+import datchat.model.common.MessageWrapper;
+import datchat.model.message.ChatMessage;
+import datchat.model.message.ErrorMessage;
+import datchat.model.message.GetLatestRequest;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
-import static datchat.model.chat.common.MessageType.ERROR;
+import static datchat.model.common.MessageType.ERROR;
 
 @Component
 public class GetLatestHandler implements MessageHandler<GetLatestRequest> {

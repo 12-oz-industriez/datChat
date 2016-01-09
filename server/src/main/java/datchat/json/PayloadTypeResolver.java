@@ -4,8 +4,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.DatabindContext;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.jsontype.impl.TypeIdResolverBase;
-import datchat.model.chat.annotation.PayloadSubTypeAnnotationCollector;
-import datchat.model.chat.common.MessageType;
+import datchat.model.annotation.PayloadSubTypeAnnotationCollector;
+import datchat.model.common.MessageType;
 
 import java.util.HashMap;
 import java.util.Map;

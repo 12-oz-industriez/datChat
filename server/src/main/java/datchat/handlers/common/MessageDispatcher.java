@@ -1,7 +1,7 @@
 package datchat.handlers.common;
 
-import datchat.model.chat.common.MessageType;
-import datchat.model.chat.common.MessageWrapper;
+import datchat.model.common.MessageType;
+import datchat.model.common.MessageWrapper;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
