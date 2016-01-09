@@ -2,6 +2,7 @@ package datchat.handlers;
 
 import datchat.dao.UserDao;
 import datchat.exception.NotUniqueUsernameException;
+import datchat.filters.common.MessageContext;
 import datchat.handlers.common.MessageHandler;
 import datchat.handlers.common.Response;
 import datchat.model.User;
@@ -26,7 +27,7 @@ public class RegisterHandler implements MessageHandler<RegisterRequest> {
     }
 
     @Override
-    public CompletableFuture<Response> handle(MessageWrapper<RegisterRequest> message) {
+    public CompletableFuture<Response> handle(MessageWrapper<RegisterRequest> message, MessageContext messageContext) {
         RegisterRequest payload = message.getPayload();
 
         String username = payload.getUsername();

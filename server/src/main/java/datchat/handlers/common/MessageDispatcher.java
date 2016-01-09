@@ -1,26 +1,27 @@
 package datchat.handlers.common;
 
+import datchat.filters.common.MessageContext;
+import datchat.filters.common.MessageFilter;
 import datchat.model.common.MessageType;
 import datchat.model.common.MessageWrapper;
-import org.springframework.stereotype.Component;
 
-import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
-@Component
 public class MessageDispatcher {
 
     private final Map<MessageType, MessageHandler> handlers;
 
-    @Inject
-    public MessageDispatcher(List<MessageHandler<?>> handlers) {
+    private final Map<MessageType, List<MessageFilter>> messageFilters;
+
+    public MessageDispatcher(List<MessageHandler<?>> handlers, Map<MessageType, List<MessageFilter>> messageFilters) {
         this.handlers = handlers.stream()
                 .collect(HashMap::new,
                         (map, handler) -> map.put(handler.getMessageType(), handler),
                         HashMap::putAll);
+        this.messageFilters = messageFilters;
     }
 
     public CompletableFuture<Response> dispatch(MessageWrapper message) {
@@ -31,6 +32,11 @@ public class MessageDispatcher {
             throw new RuntimeException("No handler for " + type + " message type");
         }
 
-        return messageHandler.handle(message);
+        MessageContext messageContext = new MessageContext();
+        for (MessageFilter messageFilter : messageFilters.get(type)) {
+            message = messageFilter.filter(message, messageContext);
+        }
+
+        return messageHandler.handle(message, messageContext);
     }
 }

@@ -1,6 +1,7 @@
 package datchat.handlers;
 
 import datchat.dao.MessageDao;
+import datchat.filters.common.MessageContext;
 import datchat.handlers.common.MessageHandler;
 import datchat.handlers.common.Response;
 import datchat.model.common.MessageType;
@@ -28,7 +29,7 @@ public class GetLatestHandler implements MessageHandler<GetLatestRequest> {
     }
 
     @Override
-    public CompletableFuture<Response> handle(MessageWrapper<GetLatestRequest> message) {
+    public CompletableFuture<Response> handle(MessageWrapper<GetLatestRequest> message, MessageContext messageContext) {
         String id = message.getId();
         GetLatestRequest payload = message.getPayload();
 

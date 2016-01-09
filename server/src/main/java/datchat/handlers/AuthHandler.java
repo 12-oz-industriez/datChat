@@ -2,6 +2,7 @@ package datchat.handlers;
 
 import datchat.dao.UserDao;
 import datchat.exception.AuthenticationFailedException;
+import datchat.filters.common.MessageContext;
 import datchat.handlers.common.MessageHandler;
 import datchat.handlers.common.Response;
 import datchat.model.Session;
@@ -31,7 +32,7 @@ public class AuthHandler implements MessageHandler<AuthRequest> {
     }
 
     @Override
-    public CompletableFuture<Response> handle(MessageWrapper<AuthRequest> message) {
+    public CompletableFuture<Response> handle(MessageWrapper<AuthRequest> message, MessageContext messageContext) {
         AuthRequest authRequest = message.getPayload();
 
         String username = authRequest.getUsername();

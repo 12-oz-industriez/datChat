@@ -1,6 +1,7 @@
 package datchat.handlers;
 
 import datchat.dao.MessageDao;
+import datchat.filters.common.MessageContext;
 import datchat.handlers.common.MessageHandler;
 import datchat.handlers.common.Response;
 import datchat.model.common.MessageType;
@@ -26,7 +27,7 @@ public class NewMessageHandler implements MessageHandler<ChatMessage> {
     }
 
     @Override
-    public CompletableFuture<Response> handle(MessageWrapper<ChatMessage> message) {
+    public CompletableFuture<Response> handle(MessageWrapper<ChatMessage> message, MessageContext messageContext) {
         ChatMessage payload = message.getPayload();
         String id = message.getId();
 

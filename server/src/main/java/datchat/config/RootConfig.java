@@ -7,15 +7,24 @@ import com.mongodb.async.client.MongoClient;
 import com.mongodb.async.client.MongoDatabase;
 import datchat.config.heroku.HerokuConfig;
 import datchat.config.local.LocalConfig;
+import datchat.filters.AuthFilter;
+import datchat.filters.common.MessageFilter;
+import datchat.handlers.common.MessageDispatcher;
+import datchat.handlers.common.MessageHandler;
 import datchat.json.ObjectIdSerializer;
+import datchat.model.common.MessageType;
+import datchat.session.SessionManager;
 import io.vertx.core.json.Json;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.security.crypto.bcrypt.BCrypt;
 
 import javax.inject.Inject;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Configuration
 @ComponentScan(basePackages = "datchat")
@@ -24,6 +33,12 @@ public class RootConfig {
 
     @Inject
     private MongoClient mongoClient;
+
+    @Inject
+    private List<MessageHandler<?>> messageHandlers;
+
+    @Inject
+    private SessionManager sessionManager;
 
     @Bean
     public ObjectMapper objectMapper() {
@@ -45,7 +60,20 @@ public class RootConfig {
     }
 
     @Bean
-    public BCrypt bCrypt() {
-        return new BCrypt();
+    public MessageDispatcher messageDispatcher() {
+        AuthFilter authFilter = authFilter(this.sessionManager);
+        List<MessageFilter> authFilters = Collections.singletonList(authFilter);
+
+        Map<MessageType, List<MessageFilter>> filterMap = new HashMap<>();
+        filterMap.put(MessageType.GET_LATEST, authFilters);
+        filterMap.put(MessageType.NEW_MESSAGE, authFilters);
+        filterMap.put(MessageType.NEW_MESSAGES, authFilters);
+
+        return new MessageDispatcher(this.messageHandlers, filterMap);
+    }
+
+    @Bean
+    public AuthFilter authFilter(SessionManager sessionManager) {
+        return new AuthFilter(sessionManager);
     }
 }
