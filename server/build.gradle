@@ -15,6 +15,7 @@ dependencies {
             mongodb_driver_async,
             jackson_databind,
             spring_context,
+            spring_security_crypto,
             javax_inject,
             slf4j_api,
             slf4j_jcl_adapter,

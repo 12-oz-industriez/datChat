@@ -2,6 +2,7 @@ package datchat.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import net.karneim.pojobuilder.GeneratePojoBuilder;
 import org.bson.types.ObjectId;
 
 public class User {
@@ -9,6 +10,7 @@ public class User {
     private final String username;
     private final String password;
 
+    @GeneratePojoBuilder
     public User(ObjectId id, String username, String password) {
         this.id = id;
         this.username = username;
@@ -40,5 +42,16 @@ public class User {
                 ", username='" + username + '\'' +
                 ", password='" + password + '\'' +
                 '}';
+    }
+
+    public UserBuilder toBuilder() {
+        return new UserBuilder()
+                .withId(id)
+                .withUsername(username)
+                .withPassword(password);
+    }
+
+    public static UserBuilder builder() {
+        return new UserBuilder();
     }
 }

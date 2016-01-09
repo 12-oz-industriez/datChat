@@ -46,10 +46,20 @@ public class UserDao {
         return future;
     }
 
-    public CompletableFuture<Void> save(User user) {
-        CompletableFuture<Void> future = new CompletableFuture<>();
+    public CompletableFuture<User> save(User user) {
+        User userWithId = user.toBuilder()
+                .withId(new ObjectId())
+                .build();
 
-        collection.insertOne(convertToDocument(user), defaultCallback(future));
+        CompletableFuture<User> future = new CompletableFuture<>();
+
+        collection.insertOne(convertToDocument(user), (result, t) -> {
+            if (t != null) {
+                future.completeExceptionally(t);
+            } else {
+                future.complete(userWithId);
+            }
+        });
 
         return future;
     }

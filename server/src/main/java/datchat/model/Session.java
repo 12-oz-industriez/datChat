@@ -1,11 +1,12 @@
 package datchat.model;
 
+import org.bson.types.ObjectId;
+
 public class Session {
-
     private final String sessionId;
-    private final String userId;
+    private final ObjectId userId;
 
-    public Session(String sessionId, String userId) {
+    public Session(String sessionId, ObjectId userId) {
         this.sessionId = sessionId;
         this.userId = userId;
     }
@@ -14,7 +15,7 @@ public class Session {
         return sessionId;
     }
 
-    public String getUserId() {
+    public ObjectId getUserId() {
         return userId;
     }
 }
