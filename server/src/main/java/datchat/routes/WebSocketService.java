@@ -1,21 +1,24 @@
 package datchat.routes;
 
-import datchat.handlers.MessageDispatcher;
-import datchat.handlers.Response;
-import datchat.model.chat.common.BaseMessage;
+import datchat.handlers.common.MessageDispatcher;
+import datchat.handlers.common.Response;
 import datchat.model.chat.common.MessageWrapper;
 import io.vertx.core.http.ServerWebSocket;
 import io.vertx.core.json.Json;
+import org.springframework.stereotype.Component;
 
+import javax.inject.Inject;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
+@Component
 public class WebSocketService {
     private final Map<String, ServerWebSocket> activeConnections = new ConcurrentHashMap<>(512);
 
     private final MessageDispatcher messageDispatcher;
 
+    @Inject
     public WebSocketService(MessageDispatcher messageDispatcher) {
         this.messageDispatcher = messageDispatcher;
     }
@@ -28,11 +31,11 @@ public class WebSocketService {
 
             MessageWrapper messageWrapper = Json.decodeValue(json, MessageWrapper.class);
 
-            CompletableFuture<Response<? extends BaseMessage, ? extends BaseMessage>> responses = messageDispatcher.dispatch(messageWrapper);
+            CompletableFuture<Response> responses = messageDispatcher.dispatch(messageWrapper);
 
             responses.thenAccept(response -> {
-                MessageWrapper<? extends BaseMessage> clientResponse = response.getClientResponse();
-                MessageWrapper<? extends BaseMessage> broadcastResponse = response.getBroadcastResponse();
+                MessageWrapper<?> clientResponse = response.getClientResponse();
+                MessageWrapper<?> broadcastResponse = response.getBroadcastResponse();
 
                 if (clientResponse != null) {
                     sendMessage(clientResponse, webSocket);
@@ -44,14 +47,14 @@ public class WebSocketService {
             });
         });
 
-        webSocket.closeHandler(v -> activeConnections.remove(webSocket));
+        webSocket.closeHandler(v -> activeConnections.remove(webSocket.textHandlerID()));
     }
 
-    public void sendMessage(MessageWrapper<? extends BaseMessage> message, ServerWebSocket socket) {
+    public void sendMessage(MessageWrapper<?> message, ServerWebSocket socket) {
         socket.writeFinalTextFrame(Json.encode(message));
     }
 
-    public void sendToAll(MessageWrapper<? extends BaseMessage> message, ServerWebSocket currentSocket) {
+    public void sendToAll(MessageWrapper<?> message, ServerWebSocket currentSocket) {
         activeConnections.values().stream()
                 .filter(socket -> !socket.equals(currentSocket))
                 .forEach(socket -> socket.writeFinalTextFrame(Json.encode(message)));

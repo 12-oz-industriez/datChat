@@ -4,9 +4,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.DatabindContext;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.jsontype.impl.TypeIdResolverBase;
-import datchat.model.chat.common.BaseMessage;
-import datchat.model.chat.common.MessageType;
 import datchat.model.chat.annotation.PayloadSubTypeAnnotationCollector;
+import datchat.model.chat.common.MessageType;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -29,9 +28,6 @@ public class PayloadTypeResolver extends TypeIdResolverBase {
     @Override
     public String idFromValue(Object value) {
         Class<?> clazz = value.getClass();
-        if (!BaseMessage.class.isAssignableFrom(clazz)) {
-            throw new RuntimeException("Unknown type");
-        }
 
         return idFromTypeMapping.get(clazz).toString();
     }

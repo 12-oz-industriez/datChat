@@ -1,6 +1,10 @@
 package datchat.dao;
 
+import com.mongodb.async.SingleResultCallback;
+import com.mongodb.async.client.FindIterable;
+import com.mongodb.async.client.MongoCollection;
 import com.mongodb.async.client.MongoDatabase;
+import com.mongodb.client.model.Filters;
 import datchat.model.chat.message.ChatMessage;
 import org.bson.Document;
 import org.bson.types.ObjectId;
@@ -11,6 +15,7 @@ import org.springframework.stereotype.Repository;
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
@@ -21,11 +26,11 @@ public class MessageDao {
     private static final Logger LOGGER = LoggerFactory.getLogger(MessageDao.class);
     private static final String COLLECTION_NAME = "chatMessages";
 
-    private final MongoDatabase database;
+    private final MongoCollection<Document> collection;
 
     @Inject
     public MessageDao(MongoDatabase database) {
-        this.database = database;
+        this.collection = database.getCollection(COLLECTION_NAME);
     }
 
     public void save(ChatMessage chatMessage, Consumer<ChatMessage> resultCallback, Consumer<Throwable> exceptionCallback) {
@@ -33,8 +38,7 @@ public class MessageDao {
                 .withId(new ObjectId())
                 .build();
 
-        database.getCollection(COLLECTION_NAME)
-                .insertOne(convertToDocument(chatMessage),
+        collection.insertOne(convertToDocument(chatMessage),
                         (result, t) -> {
                             if (t != null) {
                                 exceptionCallback.accept(t);
@@ -52,21 +56,35 @@ public class MessageDao {
         return future;
     }
 
-    public void getMessages(Consumer<List<ChatMessage>> resultCallback,
-                            Consumer<Throwable> exceptionCallback) {
-        final List<ChatMessage> chatMessages = new ArrayList<>();
-        database.getCollection(COLLECTION_NAME)
-                .find()
-                .sort(descending("_id"))
-                .forEach(d -> chatMessages.add(convertToMessage(d)),
-                        (r, t) -> {
-                            if (t != null) {
-                                exceptionCallback.accept(t);
-                            } else {
-                                resultCallback.accept(chatMessages);
-                            }
-                        }
-                );
+    public CompletableFuture<List<ChatMessage>> getLatestMessages(Optional<ObjectId> latestId, Optional<Integer> count) {
+        FindIterable<Document> findIterable = collection.find();
+
+        if (latestId.isPresent()) {
+            findIterable.filter(Filters.lt("_id", latestId.get()));
+        }
+
+        findIterable.sort(descending("_id"));
+
+        if (count.isPresent()) {
+            findIterable.limit(count.get());
+        }
+
+        CompletableFuture<List<ChatMessage>> future = new CompletableFuture<>();
+
+        findIterable.map(this::convertToMessage)
+                .into(new ArrayList<>(), createFutureCallback(future));
+
+        return future;
+    }
+
+    private <T> SingleResultCallback<T> createFutureCallback(CompletableFuture<T> future) {
+        return (result, t) -> {
+            if (t != null) {
+                future.completeExceptionally(t);
+            } else {
+                future.complete(result);
+            }
+        };
     }
 
     private Document convertToDocument(ChatMessage chatMessage) {

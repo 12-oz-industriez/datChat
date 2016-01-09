@@ -5,7 +5,6 @@ import org.reflections.Reflections;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 public class PayloadSubTypeAnnotationCollector {
     private static final String BASE_PACKAGE = "datchat";
@@ -13,13 +12,10 @@ public class PayloadSubTypeAnnotationCollector {
     public static Map<MessageType, Class<?>> collect() {
         Reflections reflections = new Reflections(BASE_PACKAGE);
 
-        Set<Class<?>> types = reflections.getTypesAnnotatedWith(PayloadSubType.class);
-
-        Map<MessageType, Class<?>> result = new HashMap<>();
-        for (Class<?> clazz : types) {
-            result.put(getMessageType(clazz), clazz);
-        }
-        return result;
+        return reflections.getTypesAnnotatedWith(PayloadSubType.class).stream()
+                .collect(HashMap::new,
+                        (map, clazz) -> map.put(getMessageType(clazz), clazz),
+                        HashMap::putAll);
     }
 
     private static MessageType getMessageType(Class<?> clazz) {
