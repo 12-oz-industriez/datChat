@@ -1,6 +1,7 @@
 package datchat.dao;
 
 import com.mongodb.async.SingleResultCallback;
+import com.mongodb.async.client.MongoCollection;
 import com.mongodb.async.client.MongoDatabase;
 import datchat.model.User;
 import org.bson.Document;
@@ -16,20 +17,20 @@ import static com.mongodb.client.model.Filters.eq;
 public class UserDao {
     private static final String COLLECTION_NAME = "users";
 
-    private final MongoDatabase mongoDatabase;
+    private final MongoCollection<Document> collection;
 
     @Inject
     public UserDao(MongoDatabase mongoDatabase) {
-        this.mongoDatabase = mongoDatabase;
+        this.collection = mongoDatabase.getCollection(COLLECTION_NAME);
     }
 
     public CompletableFuture<User> getByUsername(String username) {
         CompletableFuture<User> future = new CompletableFuture<>();
 
-        mongoDatabase.getCollection(COLLECTION_NAME)
-                .find(eq("username", username))
+        collection.find(eq("username", username))
                 .limit(1)
-                .forEach(d -> future.complete(convertToUser(d)), defaultCallback(future));
+                .map(this::convertToUser)
+                .first(defaultCallback(future));
 
         return future;
     }
@@ -37,10 +38,10 @@ public class UserDao {
     public CompletableFuture<User> getById(ObjectId id) {
         CompletableFuture<User> future = new CompletableFuture<>();
 
-        mongoDatabase.getCollection(COLLECTION_NAME)
-                .find(eq("_id", id))
+        collection.find(eq("_id", id))
                 .limit(1)
-                .forEach(d -> future.complete(convertToUser(d)), defaultCallback(future));
+                .map(this::convertToUser)
+                .first(defaultCallback(future));
 
         return future;
     }
@@ -48,16 +49,17 @@ public class UserDao {
     public CompletableFuture<Void> save(User user) {
         CompletableFuture<Void> future = new CompletableFuture<>();
 
-        mongoDatabase.getCollection(COLLECTION_NAME)
-                .insertOne(convertToDocument(user), defaultCallback(future));
+        collection.insertOne(convertToDocument(user), defaultCallback(future));
 
         return future;
     }
 
-    private <T> SingleResultCallback<Void> defaultCallback(CompletableFuture<T> future) {
+    private <T> SingleResultCallback<T> defaultCallback(CompletableFuture<T> future) {
         return (r, t) -> {
             if (t != null) {
                 future.completeExceptionally(t);
+            } else {
+                future.complete(r);
             }
         };
     }
