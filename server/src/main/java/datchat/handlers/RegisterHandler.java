@@ -8,7 +8,6 @@ import datchat.handlers.common.Response;
 import datchat.model.User;
 import datchat.model.common.MessageType;
 import datchat.model.common.MessageWrapper;
-import datchat.model.message.ErrorMessage;
 import datchat.model.message.RegisterRequest;
 import datchat.model.message.RegisterResponse;
 import org.springframework.security.crypto.bcrypt.BCrypt;
@@ -45,8 +44,7 @@ public class RegisterHandler implements MessageHandler<RegisterRequest> {
                     MessageWrapper<RegisterResponse> wrapper = new MessageWrapper<>(MessageType.REGISTER, response);
 
                     return new Response(wrapper);
-                })
-                .exceptionally(t -> new Response(new MessageWrapper<>(MessageType.ERROR, new ErrorMessage(t.getMessage()))));
+                });
     }
 
     @Override

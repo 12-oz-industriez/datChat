@@ -7,7 +7,6 @@ import datchat.handlers.common.Response;
 import datchat.model.common.MessageType;
 import datchat.model.common.MessageWrapper;
 import datchat.model.message.ChatMessage;
-import datchat.model.message.ErrorMessage;
 import datchat.model.message.GetLatestRequest;
 import org.springframework.stereotype.Component;
 
@@ -15,8 +14,6 @@ import javax.inject.Inject;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-
-import static datchat.model.common.MessageType.ERROR;
 
 @Component
 public class GetLatestHandler implements MessageHandler<GetLatestRequest> {
@@ -40,10 +37,6 @@ public class GetLatestHandler implements MessageHandler<GetLatestRequest> {
             MessageWrapper<List<ChatMessage>> newMessagesWrapper = new MessageWrapper<>(id, MessageType.NEW_MESSAGES, messages);
 
             return new Response(newMessagesWrapper);
-        }).exceptionally(t -> {
-            return new Response(
-                    new MessageWrapper<>(id, ERROR, new ErrorMessage(t.getMessage()))
-            );
         });
     }
 

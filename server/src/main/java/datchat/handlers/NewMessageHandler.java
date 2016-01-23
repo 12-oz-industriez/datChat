@@ -7,13 +7,11 @@ import datchat.handlers.common.Response;
 import datchat.model.common.MessageType;
 import datchat.model.common.MessageWrapper;
 import datchat.model.message.ChatMessage;
-import datchat.model.message.ErrorMessage;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
 import java.util.concurrent.CompletableFuture;
 
-import static datchat.model.common.MessageType.ERROR;
 import static datchat.model.common.MessageType.NEW_MESSAGE;
 
 @Component
@@ -39,10 +37,7 @@ public class NewMessageHandler implements MessageHandler<ChatMessage> {
                     MessageWrapper<ChatMessage> broadcastResponse = new MessageWrapper<>(NEW_MESSAGE, savedChatMessage);
 
                     return new Response(clientResponse, broadcastResponse);
-                })
-                .exceptionally(t -> new Response(
-                        new MessageWrapper<>(id, ERROR, new ErrorMessage(t.getMessage()))
-                ));
+                });
     }
 
     @Override

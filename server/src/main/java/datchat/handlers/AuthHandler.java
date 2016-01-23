@@ -10,7 +10,6 @@ import datchat.model.common.MessageType;
 import datchat.model.common.MessageWrapper;
 import datchat.model.message.AuthRequest;
 import datchat.model.message.AuthResponse;
-import datchat.model.message.ErrorMessage;
 import datchat.session.SessionManager;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Component;
@@ -53,8 +52,7 @@ public class AuthHandler implements MessageHandler<AuthRequest> {
                     MessageWrapper<AuthResponse> wrapper = new MessageWrapper<>(MessageType.AUTH, new AuthResponse(session.getSessionId()));
 
                     return new Response(wrapper);
-                })
-                .exceptionally(t -> new Response(new MessageWrapper<>(MessageType.ERROR, new ErrorMessage(t.getMessage()))));
+                });
     }
 
     @Override

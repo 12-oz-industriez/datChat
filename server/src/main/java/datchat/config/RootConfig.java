@@ -7,6 +7,7 @@ import com.mongodb.async.client.MongoClient;
 import com.mongodb.async.client.MongoDatabase;
 import datchat.config.heroku.HerokuConfig;
 import datchat.config.local.LocalConfig;
+import datchat.exception.ExceptionHandler;
 import datchat.filters.AuthFilter;
 import datchat.filters.common.MessageFilter;
 import datchat.handlers.common.MessageDispatcher;
@@ -40,6 +41,9 @@ public class RootConfig {
     @Inject
     private SessionManager sessionManager;
 
+    @Inject
+    private ExceptionHandler exceptionHandler;
+
     @Bean
     public ObjectMapper objectMapper() {
         ObjectMapper objectMapper = Json.mapper;
@@ -69,7 +73,7 @@ public class RootConfig {
         filterMap.put(MessageType.NEW_MESSAGE, authFilters);
         filterMap.put(MessageType.NEW_MESSAGES, authFilters);
 
-        return new MessageDispatcher(this.messageHandlers, filterMap);
+        return new MessageDispatcher(this.messageHandlers, filterMap, this.exceptionHandler);
     }
 
     @Bean

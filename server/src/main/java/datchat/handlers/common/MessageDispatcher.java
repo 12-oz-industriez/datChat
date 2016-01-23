@@ -1,5 +1,6 @@
 package datchat.handlers.common;
 
+import datchat.exception.ExceptionHandler;
 import datchat.filters.common.MessageContext;
 import datchat.filters.common.MessageFilter;
 import datchat.model.common.MessageType;
@@ -16,12 +17,18 @@ public class MessageDispatcher {
 
     private final Map<MessageType, List<MessageFilter>> messageFilters;
 
-    public MessageDispatcher(List<MessageHandler<?>> handlers, Map<MessageType, List<MessageFilter>> messageFilters) {
+    private final ExceptionHandler exceptionHandler;
+
+    public MessageDispatcher(List<MessageHandler<?>> handlers,
+                             Map<MessageType, List<MessageFilter>> messageFilters,
+                             ExceptionHandler exceptionHandler) {
         this.handlers = handlers.stream()
                 .collect(HashMap::new,
                         (map, handler) -> map.put(handler.getMessageType(), handler),
                         HashMap::putAll);
+
         this.messageFilters = messageFilters;
+        this.exceptionHandler = exceptionHandler;
     }
 
     public CompletableFuture<Response> dispatch(MessageWrapper message) {
@@ -34,9 +41,14 @@ public class MessageDispatcher {
 
         MessageContext messageContext = new MessageContext();
         for (MessageFilter messageFilter : messageFilters.get(type)) {
-            message = messageFilter.filter(message, messageContext);
+            try {
+                message = messageFilter.filter(message, messageContext);
+            } catch (Exception e) {
+                return CompletableFuture.completedFuture(this.exceptionHandler.handleThrowable(e));
+            }
         }
 
-        return messageHandler.handle(message, messageContext);
+        CompletableFuture<Response> future = messageHandler.handle(message, messageContext);
+        return future.exceptionally(this.exceptionHandler::handleThrowable);
     }
 }
