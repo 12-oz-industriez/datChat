@@ -5,22 +5,22 @@ import com.fasterxml.jackson.databind.DatabindContext;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.jsontype.impl.TypeIdResolverBase;
 import datchat.model.annotation.PayloadSubTypeAnnotationCollector;
-import datchat.model.common.MessageType;
+import datchat.model.common.RequestMessageType;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
 public class PayloadTypeResolver extends TypeIdResolverBase {
-    private Map<MessageType, Class<?>> typeFromIdMapping;
-    private Map<Class<?>, MessageType> idFromTypeMapping;
+    private Map<RequestMessageType, Class<?>> typeFromIdMapping;
+    private Map<Class<?>, RequestMessageType> idFromTypeMapping;
 
     @Override
     public void init(JavaType bt) {
         typeFromIdMapping = PayloadSubTypeAnnotationCollector.collect();
 
         idFromTypeMapping = new HashMap<>();
-        for (Entry<MessageType, Class<?>> entry : typeFromIdMapping.entrySet()) {
+        for (Entry<RequestMessageType, Class<?>> entry : typeFromIdMapping.entrySet()) {
             idFromTypeMapping.put(entry.getValue(), entry.getKey());
         }
     }
@@ -39,8 +39,8 @@ public class PayloadTypeResolver extends TypeIdResolverBase {
 
     @Override
     public JavaType typeFromId(DatabindContext context, String id) {
-        MessageType messageType = MessageType.valueOf(id);
-        Class<?> payloadClass = typeFromIdMapping.get(messageType);
+        RequestMessageType responseMessageType = RequestMessageType.valueOf(id);
+        Class<?> payloadClass = typeFromIdMapping.get(responseMessageType);
 
         return context.constructType(payloadClass);
     }

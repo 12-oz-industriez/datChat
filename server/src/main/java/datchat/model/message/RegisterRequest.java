@@ -3,9 +3,9 @@ package datchat.model.message;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import datchat.model.annotation.PayloadSubType;
-import datchat.model.common.MessageType;
+import datchat.model.common.RequestMessageType;
 
-@PayloadSubType(MessageType.REGISTER)
+@PayloadSubType(RequestMessageType.REGISTER)
 public class RegisterRequest {
     private final String username;
     private final String password;

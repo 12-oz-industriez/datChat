@@ -2,17 +2,17 @@ package datchat.handlers;
 
 import datchat.dao.MessageDao;
 import datchat.filters.common.MessageContext;
+import datchat.handlers.common.CombinedResponse;
 import datchat.handlers.common.MessageHandler;
-import datchat.handlers.common.Response;
-import datchat.model.common.MessageType;
-import datchat.model.common.MessageWrapper;
+import datchat.model.common.Request;
+import datchat.model.common.RequestMessageType;
+import datchat.model.common.Response;
+import datchat.model.common.ResponseMessageType;
 import datchat.model.message.ChatMessage;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
 import java.util.concurrent.CompletableFuture;
-
-import static datchat.model.common.MessageType.NEW_MESSAGE;
 
 @Component
 public class NewMessageHandler implements MessageHandler<ChatMessage> {
@@ -25,7 +25,7 @@ public class NewMessageHandler implements MessageHandler<ChatMessage> {
     }
 
     @Override
-    public CompletableFuture<Response> handle(MessageWrapper<ChatMessage> message, MessageContext messageContext) {
+    public CompletableFuture<CombinedResponse> handle(Request<ChatMessage> message, MessageContext messageContext) {
         ChatMessage payload = message.getPayload();
         String id = message.getId();
 
@@ -33,15 +33,15 @@ public class NewMessageHandler implements MessageHandler<ChatMessage> {
 
         return future
                 .thenApply(savedChatMessage -> {
-                    MessageWrapper<ChatMessage> clientResponse = new MessageWrapper<>(id, NEW_MESSAGE, savedChatMessage);
-                    MessageWrapper<ChatMessage> broadcastResponse = new MessageWrapper<>(NEW_MESSAGE, savedChatMessage);
+                    Response<ChatMessage> clientResponse = new Response<>(id, ResponseMessageType.NEW_MESSAGES, savedChatMessage);
+                    Response<ChatMessage> broadcastResponse = new Response<>(ResponseMessageType.NEW_MESSAGES, savedChatMessage);
 
-                    return new Response(clientResponse, broadcastResponse);
+                    return new CombinedResponse(clientResponse, broadcastResponse);
                 });
     }
 
     @Override
-    public MessageType getMessageType() {
-        return MessageType.NEW_MESSAGE;
+    public RequestMessageType getMessageType() {
+        return RequestMessageType.NEW_MESSAGE;
     }
 }

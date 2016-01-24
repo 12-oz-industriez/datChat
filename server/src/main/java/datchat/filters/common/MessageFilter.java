@@ -1,8 +1,8 @@
 package datchat.filters.common;
 
-import datchat.model.common.MessageWrapper;
+import datchat.model.common.Request;
 
 public interface MessageFilter {
 
-    <T> void filter(MessageWrapper<T> message, MessageContext context);
+    <T> void filter(Request<T> message, MessageContext context);
 }

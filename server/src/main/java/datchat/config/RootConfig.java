@@ -12,7 +12,7 @@ import datchat.filters.common.MessageFilter;
 import datchat.handlers.common.MessageDispatcher;
 import datchat.handlers.common.MessageHandler;
 import datchat.json.ObjectIdSerializer;
-import datchat.model.common.MessageType;
+import datchat.model.common.RequestMessageType;
 import datchat.session.SessionManager;
 import io.vertx.core.json.Json;
 import org.springframework.context.annotation.Bean;
@@ -51,7 +51,7 @@ public class RootConfig {
      * Spring does not support '@Autowired' on maps.
      */
     @Resource(name = "filters")
-    private Map<MessageType, List<MessageFilter>> filters;
+    private Map<RequestMessageType, List<MessageFilter>> filters;
 
     @Bean
     public ObjectMapper objectMapper() {

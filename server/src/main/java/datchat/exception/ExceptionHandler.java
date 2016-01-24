@@ -1,9 +1,10 @@
 package datchat.exception;
 
-import datchat.handlers.common.Response;
-import datchat.model.common.MessageType;
-import datchat.model.common.MessageWrapper;
-import datchat.model.message.ErrorMessage;
+import datchat.handlers.common.CombinedResponse;
+import datchat.model.common.Response;
+import datchat.model.common.ResponseMessageType;
+import datchat.model.message.Status;
+import datchat.model.message.StatusResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -12,12 +13,13 @@ import org.springframework.stereotype.Component;
 public class ExceptionHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(ExceptionHandler.class);
 
-    public Response handleThrowable(Throwable t) {
+    public CombinedResponse handleThrowable(String messageId, Throwable t) {
         LOGGER.error("", t);
 
         String message = t.getMessage() != null ? t.getMessage() : t.getClass().getSimpleName();
 
-        return new Response(new MessageWrapper<>(MessageType.ERROR, new ErrorMessage(message)));
+        StatusResponse response = new StatusResponse(Status.ERROR, message);
+        return new CombinedResponse(new Response<>(messageId, ResponseMessageType.STATUS, response));
     }
 
 }

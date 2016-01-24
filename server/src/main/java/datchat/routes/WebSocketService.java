@@ -1,8 +1,9 @@
 package datchat.routes;
 
+import datchat.handlers.common.CombinedResponse;
 import datchat.handlers.common.MessageDispatcher;
-import datchat.handlers.common.Response;
-import datchat.model.common.MessageWrapper;
+import datchat.model.common.Request;
+import datchat.model.common.Response;
 import io.vertx.core.http.ServerWebSocket;
 import io.vertx.core.json.Json;
 import org.springframework.stereotype.Component;
@@ -29,13 +30,13 @@ public class WebSocketService {
         webSocket.frameHandler(frame -> {
             String json = frame.textData();
 
-            MessageWrapper messageWrapper = Json.decodeValue(json, MessageWrapper.class);
+            Request messageWrapper = Json.decodeValue(json, Request.class);
 
-            CompletableFuture<Response> responses = messageDispatcher.dispatch(messageWrapper);
+            CompletableFuture<CombinedResponse> responses = messageDispatcher.dispatch(messageWrapper);
 
             responses.thenAccept(response -> {
-                MessageWrapper<?> clientResponse = response.getClientResponse();
-                MessageWrapper<?> broadcastResponse = response.getBroadcastResponse();
+                Response<?> clientResponse = response.getClientResponse();
+                Response<?> broadcastResponse = response.getBroadcastResponse();
 
                 if (clientResponse != null) {
                     sendMessage(clientResponse, webSocket);
@@ -50,11 +51,11 @@ public class WebSocketService {
         webSocket.closeHandler(v -> activeConnections.remove(webSocket.textHandlerID()));
     }
 
-    public void sendMessage(MessageWrapper<?> message, ServerWebSocket socket) {
+    public void sendMessage(Response<?> message, ServerWebSocket socket) {
         socket.writeFinalTextFrame(Json.encode(message));
     }
 
-    public void sendToAll(MessageWrapper<?> message, ServerWebSocket currentSocket) {
+    public void sendToAll(Response<?> message, ServerWebSocket currentSocket) {
         activeConnections.values().stream()
                 .filter(socket -> !socket.equals(currentSocket))
                 .forEach(socket -> socket.writeFinalTextFrame(Json.encode(message)));

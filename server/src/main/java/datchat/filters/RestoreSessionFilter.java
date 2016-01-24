@@ -4,7 +4,7 @@ import datchat.exception.NoSessionException;
 import datchat.filters.common.MessageContext;
 import datchat.filters.common.MessageFilter;
 import datchat.model.Session;
-import datchat.model.common.MessageWrapper;
+import datchat.model.common.Request;
 import datchat.session.SessionManager;
 
 import javax.inject.Inject;
@@ -19,7 +19,7 @@ public class RestoreSessionFilter implements MessageFilter {
     }
 
     @Override
-    public <T> void filter(MessageWrapper<T> message, MessageContext context) {
+    public <T> void filter(Request<T> message, MessageContext context) {
         Optional<Session> session = Optional.ofNullable(message.getSessionId())
                 .map(this.sessionManager::getBySessionId);
 

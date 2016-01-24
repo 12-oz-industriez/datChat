@@ -2,10 +2,12 @@ package datchat.handlers;
 
 import datchat.dao.MessageDao;
 import datchat.filters.common.MessageContext;
+import datchat.handlers.common.CombinedResponse;
 import datchat.handlers.common.MessageHandler;
-import datchat.handlers.common.Response;
-import datchat.model.common.MessageType;
-import datchat.model.common.MessageWrapper;
+import datchat.model.common.Request;
+import datchat.model.common.RequestMessageType;
+import datchat.model.common.Response;
+import datchat.model.common.ResponseMessageType;
 import datchat.model.message.ChatMessage;
 import datchat.model.message.GetLatestRequest;
 import org.springframework.stereotype.Component;
@@ -26,7 +28,7 @@ public class GetLatestHandler implements MessageHandler<GetLatestRequest> {
     }
 
     @Override
-    public CompletableFuture<Response> handle(MessageWrapper<GetLatestRequest> message, MessageContext messageContext) {
+    public CompletableFuture<CombinedResponse> handle(Request<GetLatestRequest> message, MessageContext messageContext) {
         String id = message.getId();
         GetLatestRequest payload = message.getPayload();
 
@@ -34,14 +36,14 @@ public class GetLatestHandler implements MessageHandler<GetLatestRequest> {
                 Optional.ofNullable(payload.getLastMessageId()),
                 Optional.ofNullable(payload.getCount())
         ).thenApply(messages -> {
-            MessageWrapper<List<ChatMessage>> newMessagesWrapper = new MessageWrapper<>(id, MessageType.NEW_MESSAGES, messages);
+            Response<List<ChatMessage>> newMessagesWrapper = new Response<>(id, ResponseMessageType.NEW_MESSAGES, messages);
 
-            return new Response(newMessagesWrapper);
+            return new CombinedResponse(newMessagesWrapper);
         });
     }
 
     @Override
-    public MessageType getMessageType() {
-        return MessageType.GET_LATEST;
+    public RequestMessageType getMessageType() {
+        return RequestMessageType.GET_LATEST;
     }
 }

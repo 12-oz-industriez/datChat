@@ -1,6 +1,6 @@
 package datchat.model.annotation;
 
-import datchat.model.common.MessageType;
+import datchat.model.common.RequestMessageType;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -10,5 +10,5 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface PayloadSubType {
-    MessageType value();
+    RequestMessageType value();
 }

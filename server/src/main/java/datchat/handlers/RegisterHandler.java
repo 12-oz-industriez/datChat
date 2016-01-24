@@ -3,13 +3,16 @@ package datchat.handlers;
 import datchat.dao.UserDao;
 import datchat.exception.NotUniqueUsernameException;
 import datchat.filters.common.MessageContext;
+import datchat.handlers.common.CombinedResponse;
 import datchat.handlers.common.MessageHandler;
-import datchat.handlers.common.Response;
 import datchat.model.User;
-import datchat.model.common.MessageType;
-import datchat.model.common.MessageWrapper;
+import datchat.model.common.Request;
+import datchat.model.common.RequestMessageType;
+import datchat.model.common.Response;
+import datchat.model.common.ResponseMessageType;
 import datchat.model.message.RegisterRequest;
-import datchat.model.message.RegisterResponse;
+import datchat.model.message.Status;
+import datchat.model.message.StatusResponse;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Component;
 
@@ -26,7 +29,7 @@ public class RegisterHandler implements MessageHandler<RegisterRequest> {
     }
 
     @Override
-    public CompletableFuture<Response> handle(MessageWrapper<RegisterRequest> message, MessageContext messageContext) {
+    public CompletableFuture<CombinedResponse> handle(Request<RegisterRequest> message, MessageContext messageContext) {
         RegisterRequest payload = message.getPayload();
 
         String username = payload.getUsername();
@@ -40,15 +43,15 @@ public class RegisterHandler implements MessageHandler<RegisterRequest> {
                 })
                 .thenCompose((v) -> this.userDao.save(new User(username, BCrypt.hashpw(password, BCrypt.gensalt()))))
                 .thenApply(user -> {
-                    RegisterResponse response = new RegisterResponse(user);
-                    MessageWrapper<RegisterResponse> wrapper = new MessageWrapper<>(MessageType.REGISTER, response);
+                    StatusResponse response = new StatusResponse(Status.OK);
+                    Response<StatusResponse> wrapper = new Response<>(ResponseMessageType.STATUS, response);
 
-                    return new Response(wrapper);
+                    return new CombinedResponse(wrapper);
                 });
     }
 
     @Override
-    public MessageType getMessageType() {
-        return MessageType.REGISTER;
+    public RequestMessageType getMessageType() {
+        return RequestMessageType.REGISTER;
     }
 }

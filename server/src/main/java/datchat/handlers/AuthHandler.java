@@ -3,11 +3,13 @@ package datchat.handlers;
 import datchat.dao.UserDao;
 import datchat.exception.AuthenticationFailedException;
 import datchat.filters.common.MessageContext;
+import datchat.handlers.common.CombinedResponse;
 import datchat.handlers.common.MessageHandler;
-import datchat.handlers.common.Response;
 import datchat.model.Session;
-import datchat.model.common.MessageType;
-import datchat.model.common.MessageWrapper;
+import datchat.model.common.Request;
+import datchat.model.common.RequestMessageType;
+import datchat.model.common.Response;
+import datchat.model.common.ResponseMessageType;
 import datchat.model.message.AuthRequest;
 import datchat.model.message.AuthResponse;
 import datchat.session.SessionManager;
@@ -31,7 +33,7 @@ public class AuthHandler implements MessageHandler<AuthRequest> {
     }
 
     @Override
-    public CompletableFuture<Response> handle(MessageWrapper<AuthRequest> message, MessageContext messageContext) {
+    public CompletableFuture<CombinedResponse> handle(Request<AuthRequest> message, MessageContext messageContext) {
         AuthRequest authRequest = message.getPayload();
 
         String username = authRequest.getUsername();
@@ -49,14 +51,14 @@ public class AuthHandler implements MessageHandler<AuthRequest> {
 
                     Session session = this.sessionManager.createSession(user.getId());
 
-                    MessageWrapper<AuthResponse> wrapper = new MessageWrapper<>(message.getId(), MessageType.AUTH, new AuthResponse(session.getSessionId()));
+                    Response<AuthResponse> wrapper = new Response<>(message.getId(), ResponseMessageType.AUTH, new AuthResponse(session.getSessionId()));
 
-                    return new Response(wrapper);
+                    return new CombinedResponse(wrapper);
                 });
     }
 
     @Override
-    public MessageType getMessageType() {
-        return MessageType.AUTH;
+    public RequestMessageType getMessageType() {
+        return RequestMessageType.AUTH;
     }
 }

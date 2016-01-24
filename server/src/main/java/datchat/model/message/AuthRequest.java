@@ -3,9 +3,9 @@ package datchat.model.message;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import datchat.model.annotation.PayloadSubType;
-import datchat.model.common.MessageType;
+import datchat.model.common.RequestMessageType;
 
-@PayloadSubType(MessageType.AUTH)
+@PayloadSubType(RequestMessageType.AUTH)
 public class AuthRequest {
     private final String username;
     private final String password;
