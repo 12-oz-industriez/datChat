@@ -1,4 +1,4 @@
-package datchat.model.message;
+package datchat.model.message.auth;
 
 public class AuthResponse {
     private final String sessionId;

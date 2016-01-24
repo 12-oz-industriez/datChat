@@ -1,4 +1,4 @@
-package datchat.model.message;
+package datchat.model.message.status;
 
 public class StatusResponse {
     private final Status status;

@@ -8,12 +8,11 @@ import datchat.model.common.Request;
 import datchat.model.common.RequestMessageType;
 import datchat.model.common.Response;
 import datchat.model.common.ResponseMessageType;
-import datchat.model.message.ChatMessage;
 import datchat.model.message.GetLatestRequest;
+import datchat.model.message.NewMessagesResponse;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
-import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
@@ -36,9 +35,10 @@ public class GetLatestHandler implements MessageHandler<GetLatestRequest> {
                 Optional.ofNullable(payload.getLastMessageId()),
                 Optional.ofNullable(payload.getCount())
         ).thenApply(messages -> {
-            Response<List<ChatMessage>> newMessagesWrapper = new Response<>(id, ResponseMessageType.NEW_MESSAGES, messages);
+            NewMessagesResponse response = new NewMessagesResponse(messages);
+            Response<NewMessagesResponse> clientResponse = new Response<>(id, ResponseMessageType.NEW_MESSAGES, response);
 
-            return new CombinedResponse(newMessagesWrapper);
+            return new CombinedResponse(clientResponse);
         });
     }
 

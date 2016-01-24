@@ -1,4 +1,4 @@
-package datchat.model.message;
+package datchat.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;

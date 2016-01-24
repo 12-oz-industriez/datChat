@@ -10,9 +10,9 @@ import datchat.model.common.Request;
 import datchat.model.common.RequestMessageType;
 import datchat.model.common.Response;
 import datchat.model.common.ResponseMessageType;
-import datchat.model.message.RegisterRequest;
-import datchat.model.message.Status;
-import datchat.model.message.StatusResponse;
+import datchat.model.message.register.RegisterRequest;
+import datchat.model.message.status.Status;
+import datchat.model.message.status.StatusResponse;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Component;
 

@@ -5,7 +5,7 @@ import com.mongodb.async.client.FindIterable;
 import com.mongodb.async.client.MongoCollection;
 import com.mongodb.async.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
-import datchat.model.message.ChatMessage;
+import datchat.model.ChatMessage;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;

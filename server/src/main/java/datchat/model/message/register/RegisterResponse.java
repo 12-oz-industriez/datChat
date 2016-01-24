@@ -1,4 +1,4 @@
-package datchat.model.message;
+package datchat.model.message.register;
 
 import datchat.model.User;
 

@@ -4,11 +4,12 @@ import datchat.dao.MessageDao;
 import datchat.filters.common.MessageContext;
 import datchat.handlers.common.CombinedResponse;
 import datchat.handlers.common.MessageHandler;
+import datchat.model.ChatMessage;
 import datchat.model.common.Request;
 import datchat.model.common.RequestMessageType;
 import datchat.model.common.Response;
 import datchat.model.common.ResponseMessageType;
-import datchat.model.message.ChatMessage;
+import datchat.model.message.NewMessagesResponse;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
@@ -33,8 +34,9 @@ public class NewMessageHandler implements MessageHandler<ChatMessage> {
 
         return future
                 .thenApply(savedChatMessage -> {
-                    Response<ChatMessage> clientResponse = new Response<>(id, ResponseMessageType.NEW_MESSAGES, savedChatMessage);
-                    Response<ChatMessage> broadcastResponse = new Response<>(ResponseMessageType.NEW_MESSAGES, savedChatMessage);
+                    NewMessagesResponse response = new NewMessagesResponse(savedChatMessage);
+                    Response<NewMessagesResponse> clientResponse = new Response<>(id, ResponseMessageType.NEW_MESSAGES, response);
+                    Response<NewMessagesResponse> broadcastResponse = new Response<>(ResponseMessageType.NEW_MESSAGES, response);
 
                     return new CombinedResponse(clientResponse, broadcastResponse);
                 });
