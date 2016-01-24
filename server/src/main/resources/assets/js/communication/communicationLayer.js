@@ -1,9 +1,7 @@
 datChat.communication = (function () {
     var socket = new WebSocket(datChat.CONSTANTS.WEB_SOCKET_SERVER_URL);
 
-    var messageHandlers = [NewMessageHandler, ErrorMessageHandler];
-
-    var lastMessageId = null;
+    var messageHandlers = [NewMessageHandler, ErrorMessageHandler, AuthHandler];
 
     socket.onmessage = function (event) {
         var message = JSON.parse(event.data);
@@ -31,30 +29,47 @@ datChat.communication = (function () {
         console.log("We got the error ", error);
     };
 
-    return {
-        sendChatMessage: function (messageBody) {
-            var message = {
-                id: new Date().getTime(),
-                type: "NEW_MESSAGE",
-                payload: {
-                    body: messageBody
-                }
-            };
+    var sendMessage = function (type, sessionId, payload) {
+        var message = {
+            id: new Date().getTime(),
+            type: type,
+            sessionId: sessionId,
+            payload: payload
+        };
 
-            socket.send(JSON.stringify(message));
+        var data = JSON.stringify(message);
+
+        console.log("Sending: ", data);
+        socket.send(data);
+    };
+
+    return {
+        lastMessageId: null,
+        sessionId: null,
+
+        sendChatMessage: function (messageBody) {
+            sendMessage("NEW_MESSAGE", this.sessionId, {body: messageBody});
         },
 
         getLatest: function () {
-            var message = {
-                id: new Date().getTime(),
-                type: 'GET_LATEST',
-                payload: {
-                    lastMessageId: lastMessageId,
-                    count: datChat.CONSTANTS.PAGING_COUNT
-                }
-            };
+            sendMessage("GET_LATEST", this.sessionId, {
+                lastMessageId: this.lastMessageId,
+                count: datChat.CONSTANTS.PAGING_COUNT
+            });
+        },
 
-            socket.send(JSON.stringify(message));
+        register: function (username, password) {
+            sendMessage('REGISTER', null, {
+                username: username,
+                password: password
+            });
+        },
+
+        login: function (username, password) {
+            sendMessage('AUTH', null, {
+                username: username,
+                password: password
+            });
         }
     }
 })();

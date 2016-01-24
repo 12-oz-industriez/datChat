@@ -6,6 +6,7 @@ import datchat.filters.common.MessageFilter;
 import datchat.model.common.MessageType;
 import datchat.model.common.MessageWrapper;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,15 +40,16 @@ public class MessageDispatcher {
             throw new RuntimeException("No handler for " + type + " message type");
         }
 
+        // filter
         MessageContext messageContext = new MessageContext();
-        for (MessageFilter messageFilter : messageFilters.get(type)) {
-            try {
-                message = messageFilter.filter(message, messageContext);
-            } catch (Exception e) {
-                return CompletableFuture.completedFuture(this.exceptionHandler.handleThrowable(e));
-            }
+        try {
+            messageFilters.getOrDefault(type, Collections.emptyList()).stream()
+                    .forEach(filter -> filter.filter(message, messageContext));
+        } catch (Exception e) {
+            return CompletableFuture.completedFuture(this.exceptionHandler.handleThrowable(e));
         }
 
+        // handle
         CompletableFuture<Response> future = messageHandler.handle(message, messageContext);
         return future.exceptionally(this.exceptionHandler::handleThrowable);
     }

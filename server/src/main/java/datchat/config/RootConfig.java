@@ -8,7 +8,6 @@ import com.mongodb.async.client.MongoDatabase;
 import datchat.config.heroku.HerokuConfig;
 import datchat.config.local.LocalConfig;
 import datchat.exception.ExceptionHandler;
-import datchat.filters.AuthFilter;
 import datchat.filters.common.MessageFilter;
 import datchat.handlers.common.MessageDispatcher;
 import datchat.handlers.common.MessageHandler;
@@ -21,15 +20,19 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
+import javax.annotation.Resource;
 import javax.inject.Inject;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @Configuration
 @ComponentScan(basePackages = "datchat")
-@Import({ HerokuConfig.class, LocalConfig.class, VertxConfig.class })
+@Import({
+        FilterConfig.class,
+        HerokuConfig.class,
+        LocalConfig.class,
+        VertxConfig.class
+})
 public class RootConfig {
 
     @Inject
@@ -43,6 +46,12 @@ public class RootConfig {
 
     @Inject
     private ExceptionHandler exceptionHandler;
+
+    /*
+     * Spring does not support '@Autowired' on maps.
+     */
+    @Resource(name = "filters")
+    private Map<MessageType, List<MessageFilter>> filters;
 
     @Bean
     public ObjectMapper objectMapper() {
@@ -65,19 +74,11 @@ public class RootConfig {
 
     @Bean
     public MessageDispatcher messageDispatcher() {
-        AuthFilter authFilter = authFilter(this.sessionManager);
-        List<MessageFilter> authFilters = Collections.singletonList(authFilter);
-
-        Map<MessageType, List<MessageFilter>> filterMap = new HashMap<>();
-        filterMap.put(MessageType.GET_LATEST, authFilters);
-        filterMap.put(MessageType.NEW_MESSAGE, authFilters);
-        filterMap.put(MessageType.NEW_MESSAGES, authFilters);
-
-        return new MessageDispatcher(this.messageHandlers, filterMap, this.exceptionHandler);
+        return new MessageDispatcher(
+                this.messageHandlers,
+                this.filters,
+                this.exceptionHandler
+        );
     }
 
-    @Bean
-    public AuthFilter authFilter(SessionManager sessionManager) {
-        return new AuthFilter(sessionManager);
-    }
 }

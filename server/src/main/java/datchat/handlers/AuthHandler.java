@@ -49,7 +49,7 @@ public class AuthHandler implements MessageHandler<AuthRequest> {
 
                     Session session = this.sessionManager.createSession(user.getId());
 
-                    MessageWrapper<AuthResponse> wrapper = new MessageWrapper<>(MessageType.AUTH, new AuthResponse(session.getSessionId()));
+                    MessageWrapper<AuthResponse> wrapper = new MessageWrapper<>(message.getId(), MessageType.AUTH, new AuthResponse(session.getSessionId()));
 
                     return new Response(wrapper);
                 });

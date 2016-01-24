@@ -4,5 +4,5 @@ import datchat.model.common.MessageWrapper;
 
 public interface MessageFilter {
 
-    <T> MessageWrapper<T> filter(MessageWrapper<T> message, MessageContext context);
+    <T> void filter(MessageWrapper<T> message, MessageContext context);
 }

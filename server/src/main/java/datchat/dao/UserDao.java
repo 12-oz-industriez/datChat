@@ -75,6 +75,10 @@ public class UserDao {
     }
 
     private User convertToUser(Document document) {
+        if (document == null) {
+            return null;
+        }
+
         return new User(
                 document.getObjectId("_id"),
                 document.getString("username"),
