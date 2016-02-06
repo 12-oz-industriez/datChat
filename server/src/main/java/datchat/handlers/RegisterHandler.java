@@ -15,9 +15,9 @@ import datchat.model.message.status.Status;
 import datchat.model.message.status.StatusResponse;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Component;
+import rx.Observable;
 
 import javax.inject.Inject;
-import java.util.concurrent.CompletableFuture;
 
 @Component
 public class RegisterHandler implements MessageHandler<RegisterRequest> {
@@ -29,20 +29,21 @@ public class RegisterHandler implements MessageHandler<RegisterRequest> {
     }
 
     @Override
-    public CompletableFuture<CombinedResponse> handle(Request<RegisterRequest> message, MessageContext messageContext) {
+    public Observable<CombinedResponse> handle(Request<RegisterRequest> message, MessageContext messageContext) {
         RegisterRequest payload = message.getPayload();
 
         String username = payload.getUsername();
         String password = payload.getPassword();
 
         return this.userDao.getByUsername(username)
-                .thenAccept(user -> {
+                .map(user -> {
                     if (user != null) {
                         throw new NotUniqueUsernameException("Username " + username + " is not unique");
                     }
+                    return null;
                 })
-                .thenCompose((v) -> this.userDao.save(new User(username, BCrypt.hashpw(password, BCrypt.gensalt()))))
-                .thenApply(user -> {
+                .flatMap(v -> this.userDao.save(new User(username, BCrypt.hashpw(password, BCrypt.gensalt()))))
+                .map(user -> {
                     StatusResponse response = new StatusResponse(Status.OK);
                     Response<StatusResponse> wrapper = new Response<>(ResponseMessageType.STATUS, response);
 

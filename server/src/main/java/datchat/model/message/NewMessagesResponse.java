@@ -1,22 +1,20 @@
 package datchat.model.message;
 
-import datchat.model.ChatMessage;
-
 import java.util.Collections;
 import java.util.List;
 
 public class NewMessagesResponse {
-    private final List<ChatMessage> messages;
+    private final List<ChatMessageResponse> messages;
 
-    public NewMessagesResponse(ChatMessage message) {
+    public NewMessagesResponse(ChatMessageResponse message) {
         this(Collections.singletonList(message));
     }
 
-    public NewMessagesResponse(List<ChatMessage> messages) {
+    public NewMessagesResponse(List<ChatMessageResponse> messages) {
         this.messages = messages;
     }
 
-    public List<ChatMessage> getMessages() {
+    public List<ChatMessageResponse> getMessages() {
         return messages;
     }
 }

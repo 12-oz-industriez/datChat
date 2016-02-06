@@ -4,42 +4,52 @@ import datchat.dao.MessageDao;
 import datchat.filters.common.MessageContext;
 import datchat.handlers.common.CombinedResponse;
 import datchat.handlers.common.MessageHandler;
+import datchat.mappers.ChatMessageResponseMapper;
 import datchat.model.common.Request;
 import datchat.model.common.RequestMessageType;
 import datchat.model.common.Response;
 import datchat.model.common.ResponseMessageType;
+import datchat.model.message.ChatMessageResponse;
 import datchat.model.message.GetLatestRequest;
 import datchat.model.message.NewMessagesResponse;
 import org.springframework.stereotype.Component;
+import rx.Observable;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 
 @Component
 public class GetLatestHandler implements MessageHandler<GetLatestRequest> {
 
     private final MessageDao messageDao;
 
+    private final ChatMessageResponseMapper chatMessageResponseMapper;
+
     @Inject
-    public GetLatestHandler(MessageDao messageDao) {
+    public GetLatestHandler(MessageDao messageDao, ChatMessageResponseMapper chatMessageResponseMapper) {
         this.messageDao = messageDao;
+        this.chatMessageResponseMapper = chatMessageResponseMapper;
     }
 
     @Override
-    public CompletableFuture<CombinedResponse> handle(Request<GetLatestRequest> message, MessageContext messageContext) {
+    public Observable<CombinedResponse> handle(Request<GetLatestRequest> message, MessageContext messageContext) {
         String id = message.getId();
         GetLatestRequest payload = message.getPayload();
 
-        return messageDao.getLatestMessages(
+        return messageDao.getLatest(
                 Optional.ofNullable(payload.getLastMessageId()),
-                Optional.ofNullable(payload.getCount())
-        ).thenApply(messages -> {
-            NewMessagesResponse response = new NewMessagesResponse(messages);
-            Response<NewMessagesResponse> clientResponse = new Response<>(id, ResponseMessageType.NEW_MESSAGES, response);
+                Optional.ofNullable(payload.getCount()))
 
-            return new CombinedResponse(clientResponse);
-        });
+                .flatMap(this.chatMessageResponseMapper::map)
+                .collect(ArrayList<ChatMessageResponse>::new, List::add)
+                .map(chatMessages -> {
+                    NewMessagesResponse response = new NewMessagesResponse(chatMessages);
+                    Response<NewMessagesResponse> clientResponse = new Response<>(id, ResponseMessageType.NEW_MESSAGES, response);
+
+                    return new CombinedResponse(clientResponse);
+                });
     }
 
     @Override

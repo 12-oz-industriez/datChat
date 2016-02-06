@@ -5,12 +5,12 @@ import datchat.filters.common.MessageContext;
 import datchat.filters.common.MessageFilter;
 import datchat.model.common.Request;
 import datchat.model.common.RequestMessageType;
+import rx.Observable;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 
 public class MessageDispatcher {
 
@@ -32,17 +32,17 @@ public class MessageDispatcher {
         this.exceptionHandler = exceptionHandler;
     }
 
-    public CompletableFuture<CombinedResponse> dispatch(Request message) {
+    public Observable<CombinedResponse> dispatch(Request message) {
         return doDispatch(message)
-                .exceptionally(t -> this.exceptionHandler.handleThrowable(message.getId(), t));
+                .doOnError(t -> this.exceptionHandler.handleThrowable(message.getId(), t));
     }
 
-    private CompletableFuture<CombinedResponse> doDispatch(Request message) {
+    private Observable<CombinedResponse> doDispatch(Request message) {
         RequestMessageType type = message.getType();
         MessageHandler<?> messageHandler = this.handlers.get(type);
 
         if (messageHandler == null) {
-            return exceptionallyCompletedFuture(new RuntimeException("No handler for " + type + " message type"));
+            return Observable.error(new RuntimeException("No handler for " + type + " message type"));
         }
 
         // filter
@@ -51,16 +51,10 @@ public class MessageDispatcher {
             messageFilters.getOrDefault(type, Collections.emptyList()).stream()
                     .forEach(filter -> filter.filter(message, messageContext));
         } catch (Exception e) {
-            return exceptionallyCompletedFuture(e);
+            return Observable.error(e);
         }
 
         // handle
         return messageHandler.handle(message, messageContext);
-    }
-
-    private CompletableFuture<CombinedResponse> exceptionallyCompletedFuture(Throwable t) {
-        CompletableFuture<CombinedResponse> future = new CompletableFuture<>();
-        future.completeExceptionally(t);
-        return future;
     }
 }

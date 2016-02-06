@@ -15,9 +15,9 @@ import datchat.model.message.auth.AuthResponse;
 import datchat.session.SessionManager;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Component;
+import rx.Observable;
 
 import javax.inject.Inject;
-import java.util.concurrent.CompletableFuture;
 
 @Component
 public class AuthHandler implements MessageHandler<AuthRequest> {
@@ -33,14 +33,14 @@ public class AuthHandler implements MessageHandler<AuthRequest> {
     }
 
     @Override
-    public CompletableFuture<CombinedResponse> handle(Request<AuthRequest> message, MessageContext messageContext) {
+    public Observable<CombinedResponse> handle(Request<AuthRequest> message, MessageContext messageContext) {
         AuthRequest authRequest = message.getPayload();
 
         String username = authRequest.getUsername();
         String actualPassword = authRequest.getPassword();
 
         return this.userDao.getByUsername(username)
-                .thenApply(user -> {
+                .map(user -> {
                     String expectedPassword = user.getPassword();
 
                     boolean passwordMatches = BCrypt.checkpw(actualPassword, expectedPassword);

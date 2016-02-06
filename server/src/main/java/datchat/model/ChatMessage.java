@@ -11,13 +11,13 @@ import org.bson.types.ObjectId;
 public class ChatMessage {
     private final ObjectId id;
     private final String body;
-    private final String author;
+    private final ObjectId author;
 
     @GeneratePojoBuilder
     @JsonCreator
     public ChatMessage(@JsonProperty("id") ObjectId id,
                        @JsonProperty("body") String body,
-                       @JsonProperty("author") String author) {
+                       @JsonProperty("author") ObjectId author) {
         this.id = id;
         this.body = body;
         this.author = author;
@@ -31,7 +31,7 @@ public class ChatMessage {
         return body;
     }
 
-    public String getAuthor() {
+    public ObjectId getAuthor() {
         return author;
     }
 

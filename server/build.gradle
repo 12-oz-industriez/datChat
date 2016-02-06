@@ -12,7 +12,9 @@ applicationDefaultJvmArgs = ["-Dspring.profiles.active=local"]
 dependencies {
     compile vertx_core,
             vertx_web,
-            mongodb_driver_async,
+            rxjava,
+//            mongodb_driver_async,
+            mongodb_driver_rxjava,
             jackson_databind,
             spring_context,
             spring_security_crypto,

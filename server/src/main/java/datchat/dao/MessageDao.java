@@ -1,23 +1,19 @@
 package datchat.dao;
 
-import com.mongodb.async.SingleResultCallback;
-import com.mongodb.async.client.FindIterable;
-import com.mongodb.async.client.MongoCollection;
-import com.mongodb.async.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
+import com.mongodb.rx.client.FindObservable;
+import com.mongodb.rx.client.MongoCollection;
+import com.mongodb.rx.client.MongoDatabase;
 import datchat.model.ChatMessage;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
+import rx.Observable;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-import java.util.function.Consumer;
 
 import static com.mongodb.client.model.Sorts.descending;
 
@@ -33,58 +29,30 @@ public class MessageDao {
         this.collection = database.getCollection(COLLECTION_NAME);
     }
 
-    public void save(ChatMessage chatMessage, Consumer<ChatMessage> resultCallback, Consumer<Throwable> exceptionCallback) {
+    public Observable<ChatMessage> getById(ObjectId id) {
+        return this.collection.find(Filters.eq("_id", id))
+                .first()
+                .map(this::convertToMessage);
+    }
+
+    public Observable<ChatMessage> getLatest(Optional<ObjectId> latestId, Optional<Integer> count) {
+        FindObservable<Document> find = collection.find();
+
+        latestId.ifPresent(v -> find.filter(Filters.lt("_id", v)));
+        count.ifPresent(find::limit);
+
+        return find.sort(descending("_id"))
+                .toObservable()
+                .map(this::convertToMessage);
+    }
+
+    public Observable<ChatMessage> save(ChatMessage chatMessage) {
         ChatMessage chatMessageWithId = chatMessage.toBuilder()
                 .withId(new ObjectId())
                 .build();
 
-        collection.insertOne(convertToDocument(chatMessage),
-                        (result, t) -> {
-                            if (t != null) {
-                                exceptionCallback.accept(t);
-                            } else {
-                                resultCallback.accept(chatMessageWithId);
-                            }
-                        });
-    }
-
-    public CompletableFuture<ChatMessage> save(ChatMessage chatMessage) {
-        CompletableFuture<ChatMessage> future = new CompletableFuture<>();
-
-        save(chatMessage, future::complete, future::completeExceptionally);
-
-        return future;
-    }
-
-    public CompletableFuture<List<ChatMessage>> getLatestMessages(Optional<ObjectId> latestId, Optional<Integer> count) {
-        FindIterable<Document> findIterable = collection.find();
-
-        if (latestId.isPresent()) {
-            findIterable.filter(Filters.lt("_id", latestId.get()));
-        }
-
-        findIterable.sort(descending("_id"));
-
-        if (count.isPresent()) {
-            findIterable.limit(count.get());
-        }
-
-        CompletableFuture<List<ChatMessage>> future = new CompletableFuture<>();
-
-        findIterable.map(this::convertToMessage)
-                .into(new ArrayList<>(), createFutureCallback(future));
-
-        return future;
-    }
-
-    private <T> SingleResultCallback<T> createFutureCallback(CompletableFuture<T> future) {
-        return (result, t) -> {
-            if (t != null) {
-                future.completeExceptionally(t);
-            } else {
-                future.complete(result);
-            }
-        };
+        return collection.insertOne(convertToDocument(chatMessageWithId))
+                .map(s -> chatMessageWithId);
     }
 
     private Document convertToDocument(ChatMessage chatMessage) {
@@ -97,7 +65,7 @@ public class MessageDao {
         return ChatMessage.builder()
                 .withId(document.getObjectId("_id"))
                 .withBody(document.getString("body"))
-                .withAuthor(document.getString("author"))
+                .withAuthor(document.getObjectId("author"))
                 .build();
     }
 }
