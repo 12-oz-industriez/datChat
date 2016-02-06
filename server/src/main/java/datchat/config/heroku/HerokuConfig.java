@@ -1,7 +1,7 @@
 package datchat.config.heroku;
 
-import com.mongodb.async.client.MongoClient;
-import com.mongodb.async.client.MongoClients;
+import com.mongodb.rx.client.MongoClient;
+import com.mongodb.rx.client.MongoClients;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
