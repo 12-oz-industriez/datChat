@@ -34,7 +34,7 @@ public class MessageDispatcher {
 
     public Observable<CombinedResponse> dispatch(Request message) {
         return doDispatch(message)
-                .doOnError(t -> this.exceptionHandler.handleThrowable(message.getId(), t));
+                .onErrorReturn(t -> this.exceptionHandler.handleThrowable(message.getId(), t));
     }
 
     private Observable<CombinedResponse> doDispatch(Request message) {
